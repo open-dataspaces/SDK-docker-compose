@@ -1,0 +1,180 @@
+name: ods
+
+services:  
+
+  # L3
+  # keycloak
+  # -----------------------------------------------
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.2.5
+    container_name: keycloak
+    tty: true
+    stdin_open: true
+    #volumes:
+    #  - ./certs/keycloak.crt:/etc/x509/https/keycloak.crt
+    #  - ./certs/keycloak.key:/etc/x509/https/keycloak.key
+    ports:
+        - 8082:8082
+        - 8443:8443
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: password
+      KC_LOG_LEVEL: info
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_PORT: 5432
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_PASSWORD: password
+      KC_HTTP_PORT: 8082
+      KC_HOSTNAME: "http://auth.localhost:8082"
+      KC_HOSTNAME_URL: "http://auth.localhost:8082"
+      KC_HOSTNAME_ADMIN_URL: "http://auth.localhost:8082"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HEALTH_ENABLED: "true"
+      #KC_HOSTNAME: localhost
+      #KC_HTTPS_CERTIFICATE_FILE: /etc/x509/https/keycloak.crt
+      #KC_HTTPS_CERTIFICATE_KEY_FILE: /etc/x509/https/keycloak.key
+    command:
+      #- start
+      - start-dev
+    depends_on:
+      # Start the database before other services
+      - postgres
+    networks:
+      shared-network-ods:
+        aliases:
+          - auth.localhost
+
+  # PostgreSQL for Keycloak
+  # -----------------------------------------------
+  postgres:
+    image: postgres:17
+    environment:
+      # Environment Variables expecially for Postgres
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+    container_name: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - shared-network-ods
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  # OpenFGA
+  # -----------------------------------------------
+  openfga:
+#    image: openfga/openfga:latest
+    image: openfga-authzen:latest
+    build:
+      context: ..
+      dockerfile: ./l3/Dockerfile
+    container_name: openfga
+    ports:
+      - "8083:8083"  # API
+      - "8081:8081"  # Metrics
+      - "3000:3000"  # Playground
+    environment:
+      # Port configuration
+      OPENFGA_HTTP_ADDR: 0.0.0.0:8083
+      # Postgres configuration
+      OPENFGA_DATASTORE_ENGINE: postgres
+      OPENFGA_DATASTORE_URI: postgres://openfga:password@postgres-openfga:5432/openfga?sslmode=disable
+      # Authentication settings
+      OPENFGA_AUTHN_METHOD: none   # preshared or oidc or none
+      # For pre-shared key (PSK)
+      # OPENFGA_AUTHN_PRESHARED_KEYS: preshared
+      # For OIDC
+      # OPENFGA_AUTHN_OIDC_ISSUER: http://keycloak_dev:8080/realms/app_realm
+      # OPENFGA_AUTHN_OIDC_AUDIENCE: account
+      # OPENFGA_AUTHN_OIDC_JWKS_URI: http://keycloak_dev:8080/realms/app_realm/protocol/openid-connect/certs
+      # Log level can be: debug, info, warn, error
+      OPENFGA_LOG_LEVEL: info
+    # command: run --playground-enabled=false
+    command: run
+    depends_on:
+      #  Start the database before other services
+       - postgres-openfga
+    networks:
+      - shared-network-ods
+
+  # PostgreSQL for OpenFGA
+  # -----------------------------------------------
+  postgres-openfga:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: openfga
+      POSTGRES_USER: openfga
+      POSTGRES_PASSWORD: password
+    container_name: postgres-openfga
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata_openfga:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U openfga -d openfga"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    networks:
+      - shared-network-ods
+
+  # L3_app
+  l3-app:
+    image: l3-app:latest
+    build:
+      context: ..
+      dockerfile: ./l3/Dockerfile-local
+    container_name: l3-app
+    ports:
+      - "8080:8080"
+    environment:
+      # Environment Variables for Spring Boot Application
+      SPRING_PROFILES_ACTIVE: local
+
+      # Database Configuration
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/db_ods
+      SPRING_DATASOURCE_USERNAME: app_ods
+      SPRING_DATASOURCE_PASSWORD: password
+
+      # logging level
+      LOGGING_LEVEL_COM_ODS: DEBUG
+
+      # Keycloak Configuration
+      KEYCLOAK_REALM: master
+      KEYCLOAK_API_ENDPOINT: http://auth.localhost:8082   # Localhost URL for the Keycloak server
+      KEYCLOAK_CREDENTIALS_ADMIN_REALM: master
+      KEYCLOAK_CREDENTIALS_ADMIN_USERNAME: admin
+      KEYCLOAK_CREDENTIALS_ADMIN_PASSWORD: password
+      KEYCLOAK_CREDENTIALS_ADMIN_CLIENT_ID: admin-cli
+      KEYCLOAK_CREDENTIALS_TOKEN_INTROSPECT_CLIENT_ID: system-auth-sample
+      KEYCLOAK_CREDENTIALS_TOKEN_INTROSPECT_CLIENT_SECRET: HYS8t9xboPmot4b5fOPHDjduLOYoF4f4
+
+      # keycloak Authorization Code Flow URL.
+      KEYCLOAK_AUTHORIZATION_URL: http://auth.localhost:8082
+
+      # openfga Configuration
+      OPENFGA_API_ENDPOINT: http://openfga:8083
+
+      # IP restriction feature toggle
+      ODS_IS_ENABLE_IP_RESTRICTION: true
+      # Database SSL conmfigure
+      ODS_DATABASE_SSL: false
+    networks:
+      - shared-network-ods
+volumes:
+  pgdata:
+    driver: local
+  pgdata_openfga:
+    driver: local
+
+networks:
+  shared-network-ods:
+    external: true

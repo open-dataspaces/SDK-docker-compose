@@ -1,0 +1,31 @@
+{
+  "writes": {
+    "tuple_keys": [
+      { "user": "group:schema-public-admin#member", "relation": "can_access", "object": "endpoint:public.get" },
+      { "user": "group:schema-public-admin#member", "relation": "can_access", "object": "endpoint:public.post" },
+      { "user": "group:schema-public-admin#member", "relation": "can_access", "object": "endpoint:public.put" },
+      { "user": "group:schema-public-admin#member", "relation": "can_access", "object": "endpoint:public.delete" },
+
+      { "user": "group:schema-automotive-admin#member", "relation": "can_access", "object": "endpoint:automotive.get" },
+      { "user": "group:schema-automotive-admin#member", "relation": "can_access", "object": "endpoint:automotive.post" },
+      { "user": "group:schema-automotive-admin#member", "relation": "can_access", "object": "endpoint:automotive.put" },
+      { "user": "group:schema-automotive-admin#member", "relation": "can_access", "object": "endpoint:automotive.delete" },
+
+      { "user": "group:schema-medical-admin#member", "relation": "can_access", "object": "endpoint:medical.get" },
+      { "user": "group:schema-medical-admin#member", "relation": "can_access", "object": "endpoint:medical.post" },
+      { "user": "group:schema-medical-admin#member", "relation": "can_access", "object": "endpoint:medical.put" },
+      { "user": "group:schema-medical-admin#member", "relation": "can_access", "object": "endpoint:medical.delete" },
+
+      { "user": "group:schema-iot-admin#member", "relation": "can_access", "object": "endpoint:iot.get" },
+      { "user": "group:schema-iot-admin#member", "relation": "can_access", "object": "endpoint:iot.post" },
+      { "user": "group:schema-iot-admin#member", "relation": "can_access", "object": "endpoint:iot.put" },
+      { "user": "group:schema-iot-admin#member", "relation": "can_access", "object": "endpoint:iot.delete" },
+
+      { "user": "group:schema-disaster-admin#member", "relation": "can_access", "object": "endpoint:disaster.get" },
+      { "user": "group:schema-disaster-admin#member", "relation": "can_access", "object": "endpoint:disaster.post" },
+      { "user": "group:schema-disaster-admin#member", "relation": "can_access", "object": "endpoint:disaster.put" },
+      { "user": "group:schema-disaster-admin#member", "relation": "can_access", "object": "endpoint:disaster.delete" }
+    ],
+    "on_duplicate": "ignore"
+  }
+}

@@ -1,0 +1,1 @@
+FROM ghcr.io/8hz/openfga:v1.9.2-authzen

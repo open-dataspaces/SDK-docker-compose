@@ -1,0 +1,58 @@
+name: ods
+
+x-minio-creds: &minio-creds
+  MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+  MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+
+services:
+  fluentd:
+    image: fluentd:1.19.1
+    build:
+      context: ..
+      dockerfile: ./logging/Dockerfile
+    container_name: fluentd
+    volumes:
+      - ../logging:/fluentd/etc
+      - ./fluentd-buffer:/fluentd/buffer
+    ports:
+      - 24224:24224
+      - 24224:24224/udp
+    networks:
+      - shared-network-ods
+  minio:
+    image: quay.io/minio/minio
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      <<: *minio-creds
+    volumes:
+      - ../data:/data
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+    networks:
+      - shared-network-ods
+  # Init container: create the required MinIO bucket on startup
+  minio-init:
+    image: minio/mc
+    depends_on:
+      - minio
+    environment:
+      <<: *minio-creds
+    entrypoint: >
+      /bin/sh -lc "
+      until mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; do
+        echo 'waiting for minio...'; sleep 2;
+      done;
+      mc mb -p local/pj-a-sbx;
+      mc anonymous set none local/pj-a-sbx;
+      echo 'minio init done';
+      "
+    restart: "no"
+    networks:
+      - shared-network-ods
+
+networks:
+  shared-network-ods:
+    external: true

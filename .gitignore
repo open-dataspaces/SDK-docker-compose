@@ -1,0 +1,41 @@
+# Compiled Java class files
+*.class
+
+# Log files
+*.log
+*.log.*
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# Maven build output
+target/
+
+# IDE-specific files
+# IntelliJ
+.idea/
+*.iml
+*.iws
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# VS Code
+.vscode/
+
+# OS-specific files
+.DS_Store
+
+.session_secret
+**/secrets
+
+*.cer
+data/
+cert-file/
+open-data-spaces-l2-public/
+open-data-spaces-l3-public/
+open-data-spaces-payment-public/

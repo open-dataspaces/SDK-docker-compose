@@ -1,0 +1,45 @@
+openapi: 3.0.3
+info:
+  title: Mock for /test
+  version: 1.3.0
+  description: |
+    /test endpoint that returns a confirmation message.
+    - Body: optional, any JSON or plain text accepted.
+    - Headers: none are required.
+servers:
+  - url: http://localhost:4011
+paths:
+  /test:
+    post:
+      summary: Confirm request reception
+      description: Returns a confirmation message for any POST request.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              description: Arbitrary JSON payload.
+          text/plain:
+            schema:
+              type: string
+              description: Arbitrary text payload.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    default: "Request successfully delivered!"
+              example:
+                message: "Request successfully delivered!"
+            text/plain:
+              schema:
+                type: string
+                default: "Request successfully delivered!"
+              example: "Request successfully delivered!"

@@ -1,0 +1,40 @@
+name: ods
+
+services:
+  gateway:
+    image: ods/dp-http:latest
+    build:
+      context: ..
+      dockerfile: ./l2/Dockerfile
+    container_name: gateway
+    environment:
+      - FGA_STORE_ID=01KJSFE0J1HTZ95Q7AWVH2VE9G
+      - FGA_MODEL_ID=01KJSFE0JTZXBZD9XSAGFAYMR1
+      - KEYCLOAK_URL=http://auth.localhost:8082
+      - KEYCLOAK_REALM=master
+      - FGA_URL=http://openfga:8083
+      - DB_URL=jdbc:postgresql://postgres:5432/postgres
+      - DB_SCHEMA=public
+      - DB_USERNAME=keycloak
+      - DB_PASSWORD=password
+      - VALID_API_KEYS=2dfd3409-ce01-4451-96fa-7e10c9681422y
+      - VALID_API_KEYS_ENABLED=true
+      - AUTHZEN_AUTHORIZATION_ENABLED=true
+      - LOGLEVEL=DEBUG
+    depends_on:
+      - keycloak
+      - fluentd
+    # Configure the logging driver to use fluentd
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: "docker.{{.Name}}"
+    ports:
+      - 8090:8090
+    networks:
+      - shared-network-ods
+
+networks:
+  shared-network-ods:
+    external: true

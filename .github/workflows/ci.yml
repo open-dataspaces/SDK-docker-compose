@@ -1,0 +1,32 @@
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  docker-compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/checkout@v6
+        with:
+          repository: pj-ods-a/open-data-spaces-l2-public
+          path: open-data-spaces-l2-public
+          token: ${{ secrets.SDK_CI }}
+
+      - uses: actions/checkout@v6
+        with:
+          repository: pj-ods-a/open-data-spaces-l3-public
+          path: open-data-spaces-l3-public
+          token: ${{ secrets.SDK_CI }}
+
+      - uses: actions/checkout@v6
+        with:
+          repository: pj-ods-a/open-data-spaces-payment-public
+          path: open-data-spaces-payment-public
+          token: ${{ secrets.SDK_CI }}
+
+      - run: docker network create shared-network-ods
+      - run: docker compose up -d

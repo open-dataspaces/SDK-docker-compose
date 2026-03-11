@@ -1,0 +1,19 @@
+name: ods
+
+services:
+  mockoon:
+    image: mockoon/cli:latest
+    command: >
+      -d /tmp/api.yaml
+      -l 0.0.0.0
+      -p 4011
+    volumes:
+      - ./openapi.yaml:/tmp/api.yaml:ro
+    ports:
+      - "4011:4011"  
+    networks:
+      - shared-network-ods
+
+networks:
+  shared-network-ods:
+    external: true

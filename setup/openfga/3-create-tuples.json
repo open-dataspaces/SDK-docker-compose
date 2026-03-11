@@ -1,0 +1,32 @@
+{
+  "writes": {
+    "tuple_keys": [
+      {
+        "user": "role:authz-models-admin",
+        "relation": "allowed_get_roles",
+        "object": "api:/authz/stores/{store_id}/authorization-models"
+      }
+      ,{
+        "user": "role:authz-models-admin",
+        "relation": "allowed_post_roles",
+        "object": "api:/authz/stores/{store_id}/authorization-models"
+      }
+      ,{
+        "user": "role:authz-tuples-admin",
+        "relation": "allowed_post_roles",
+        "object": "api:/authz/stores/{store_id}/write"
+      }
+      ,{
+        "user": "role:authz-tuples-admin",
+        "relation": "allowed_post_roles",
+        "object": "api:/authz/stores/{store_id}/read"
+      }
+      ,{
+        "user": "role:authz-user-admin",
+        "relation": "allowed_post_roles",
+        "object": "api:/account/user"
+      }
+    ],
+    "on_duplicate": "ignore"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "writes": {
+    "tuple_keys": [
+      {
+        "user": "user:${AUTHZ_USER_ID}",
+        "relation": "member",
+        "object": "role:authz-models-admin"
+      }
+      ,{
+        "user": "user:${AUTHZ_USER_ID}",
+        "relation": "member",
+        "object": "role:authz-tuples-admin"
+      }
+      ,{
+        "user": "user:${AUTHZ_USER_ID}",
+        "relation": "member",
+        "object": "role:authz-user-admin"
+      }
+    ],
+    "on_duplicate": "ignore"
+  }
+}

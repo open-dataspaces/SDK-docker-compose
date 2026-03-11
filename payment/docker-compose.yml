@@ -1,0 +1,128 @@
+name: ods-payment
+
+services:
+  payment-db:
+    image: postgres:18-alpine
+    container_name: payment-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-fastapi_db}
+      #ports:
+      #- "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - shared-network-ods
+
+  payment-app:
+    image: payment-app:latest
+    build:
+      context: ../                    # Project root directory (payment-api/)
+      dockerfile: payment/Dockerfile   # Relative path from the build context
+    container_name: payment-app
+    ports:
+      - "8001:8000"
+    environment:
+      # ===========================================
+      # Development environment configuration
+      # ===========================================
+      ENVIRONMENT: PRODUCTION
+      DEBUG: ${DEBUG:-False}
+      LOG_LEVEL: DEBUG
+
+      # ===========================================
+      # Security configuration (development only). DO NOT use in production.
+      # ===========================================
+      SECRET_KEY: ${SECRET_KEY:-dev-only-secret-key-change-in-production}
+      # CORS (dev only): allow any origin (*). DO NOT use '*' in production—set specific origins.
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+
+      # ===========================================
+      # API keys (dev only; override with env vars)
+      # ===========================================
+      X_PAYMENT_API_KEY: ${X_PAYMENT_API_KEY:-payment-api-key}
+
+      # ===========================================
+      # Configuration for operator ID validation
+      # ===========================================
+      OPERATOR_ID_VERIFICATION_ENABLED: ${OPERATOR_ID_VERIFICATION_ENABLED:-true}
+
+      # ===========================================
+      # L3 authentication (dev only; override with env vars).
+      # ===========================================
+      L3_BASE_URL: ${L3_BASE_URL:-http://l3-app:8080}
+      L3_INTROSPECT_ENDPOINT: /auth/token/introspect
+      L3_API_KEY: ${L3_API_KEY:-API-Key-Sample}
+      L3_CLIENT_ID: ${L3_CLIENT_ID:-system-auth-sample}
+      L3_CLIENT_SECRET: ${L3_CLIENT_SECRET:-im0x7PUhJhGr2EiVAxZ97tVrLBHw75Nh}
+
+      # ===========================================
+      # Authorization service configuration
+      # ===========================================
+      AUTHZ_ENABLED: "false"
+      AUTHZ_BASE_URL: ${AUTHZ_BASE_URL:-http://openfga:8083}
+      AUTHZ_OPENFGA_STORE_ID: ${AUTHZ_OPENFGA_STORE_ID:-01KGDSM4M9H08M29F4QAXD6ZCS}
+      AUTHZ_OPENFGA_MODEL_ID: ${AUTHZ_OPENFGA_MODEL_ID:-01KGDSM4MTW1RYTEPZYJFRT3YM}
+
+      # ===========================================
+      # Configuration for the external payment service
+      # ===========================================
+      EXTERNAL_PAYMENT_ENABLED: "true"
+      # EXTERNAL_PAYMENT_BASE_URL: ${EXTERNAL_PAYMENT_BASE_URL:-http://np-kakebarai-mock-api:8000}
+
+      # ===========================================
+      # Configuration for the NP Kakebarai (dev only)
+      # ===========================================
+      NP_KAKEBARAI_BASE_URL: ${NP_KAKEBARAI_BASE_URL:-http://np-kakebarai-mock-api:8000}
+      NP_KAKEBARAI_SHOP_CODE: ${NP_KAKEBARAI_SHOP_CODE:-test-shop}
+      NP_KAKEBARAI_SP_CODE: ${NP_KAKEBARAI_SP_CODE:-test-sp-code}
+      NP_KAKEBARAI_SERVICE_ID: ${NP_KAKEBARAI_SERVICE_ID:-00000000-0000-0000-0000-000000000000}
+
+      # ===========================================
+      # Database configuration for local Docker
+      # ===========================================
+      POSTGRES_HOST: payment-db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: fastapi_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      DB_CONNECT_TIMEOUT: ${DB_CONNECT_TIMEOUT:-10}
+      DB_POOL_TIMEOUT: ${DB_POOL_TIMEOUT:-10}
+
+      # ===========================================
+      # Development logging configuration
+      # ===========================================
+      LOG_JSON_FORMAT: "false"     # Human-readable format
+      LOG_FILE_ENABLED: "false"    # Disable file output
+      LOG_COLORIZE: "true"         # Enable colored logs
+      APP_NAME: payment-api
+      SQLALCHEMY_LOG_LEVEL: ERROR  # Suppress SQL logs
+      UVICORN_LOG_LEVEL: debug
+
+    # Logging driver configuration (optional)
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        labels: "app=payment-api"
+
+    depends_on:
+      payment-db:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - shared-network-ods
+
+volumes:
+  postgres_data:
+
+networks:
+  shared-network-ods:
+    external: true

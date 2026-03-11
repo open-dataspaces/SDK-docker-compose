@@ -1,0 +1,20 @@
+name: ods
+
+include:
+  - ./l2/docker-compose.yml
+  - ./l3/docker-compose.yml
+  - ./mockserver/docker-compose.yml
+  - ./logging/docker-compose.yml
+  - ./payment/docker-compose.yml
+  
+volumes:
+  pgdata:
+    driver: local
+  pgdata_openfga:
+    driver: local
+
+networks:
+  shared-network-ods:
+    external: true
+
+
