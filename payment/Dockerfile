@@ -54,16 +54,16 @@ RUN useradd -m -u 1000 appuser && \
     chown -R appuser:appuser /app
 
 # Copy 
-COPY ./open-data-spaces-payment-public/ /app/
+COPY ./DCS-Payment/ /app/
 
 # Copy Python dependencies from builder
 COPY --from=builder --chown=appuser:appuser /root/.local /home/appuser/.local
 
 # Copy application code
-COPY --chown=appuser:appuser ../open-data-spaces-payment-public/app/ /app/app/
+COPY --chown=appuser:appuser ../DCS-Payment/app/ /app/app/
 
 # Copy Alembic migration files (alembic.ini is located in the migrations directory)
-COPY --chown=appuser:appuser ../open-data-spaces-payment-public/migrations/ /app/migrations/
+COPY --chown=appuser:appuser ../DCS-Payment/migrations/ /app/migrations/
 
 # Set PATH to include user's local bin
 ENV PATH=/home/appuser/.local/bin:$PATH

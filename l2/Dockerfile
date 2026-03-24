@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y maven
 # Set working directory
 WORKDIR /app
 
-COPY ./open-data-spaces-l2-public/ /app
+COPY ./L2-dp-webapi/ /app
 
 RUN mvn clean install -DskipTests=true
 

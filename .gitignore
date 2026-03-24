@@ -36,6 +36,6 @@ target/
 *.cer
 data/
 cert-file/
-open-data-spaces-l2-public/
-open-data-spaces-l3-public/
-open-data-spaces-payment-public/
+L2-dp-webapi/
+L3-identity-component/
+DCS-Payment/

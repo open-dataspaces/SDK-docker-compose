@@ -4,7 +4,7 @@
 # Use OpenJDK as the base image
 FROM eclipse-temurin:21-jdk
 
-#  Copy the SSL certificate into the container
+# Copy the SSL certificate into the container
 # COPY ./cert-file/cert.cer /usr/local/share/ca-certificates/cert.crt
 
 # Install Maven for the build environment
@@ -26,7 +26,7 @@ WORKDIR /app
 EXPOSE 8080
 
 # Copy the application JAR file
-COPY ./open-data-spaces-l3-public/ouranos-data-spaces-l3-authenticator-backend-cmp/ /app
+COPY ./L3-identity-component/open-data-spaces-l3-authenticator-backend/ /app
 RUN mvn clean install -DskipTests=true
 
 # Build the environment for the ODS platform

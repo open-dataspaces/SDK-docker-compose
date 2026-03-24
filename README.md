@@ -152,12 +152,11 @@ SSLインスペクション環境で本リポジトリを使用する場合、�
 各コンポーネントの初期設定手順を以下に示します。
 
 最初に、L2, L3, 精算決済の各サービスを、それぞれの公式リポジトリからコピーします。
-なお、ここで記載しているリポジトリのURLは開発中のものであり、正式公開時には変更されます。
 
 ```
-$ git clone --depth 1 https://github.com/pj-ods-a/open-data-spaces-l2-public.git
-$ git clone --depth 1 https://github.com/pj-ods-a/open-data-spaces-l3-public.git
-$ git clone --depth 1 https://github.com/pj-ods-a/open-data-spaces-payment-public.git
+$ git clone --depth 1 https://github.com/open-dataspaces/L2-dp-webapi.git
+$ git clone --depth 1 https://github.com/open-dataspaces/L3-identity-component.git
+$ git clone --depth 1 https://github.com/open-dataspaces/DCS-Payment.git
 ```
 
 必要なファイルが揃ったら、サービス群が共有するネットワークを作成し、リポジトリのトップレベルに配置されている docker-compose.yml ファイルを使ってすべてのサービスを起動します。
@@ -194,8 +193,8 @@ $ docker compose up -d
 
 #### L3: アイデンティティコンポーネント
 
-L3では、[ビルド・起動手順](https://github.com/pj-ods-a/open-data-spaces-l3-public/tree/main?tab=readme-ov-file#1-%E3%83%93%E3%83%AB%E3%83%89%E8%B5%B7%E5%8B%95%E6%89%8B%E9%A0%86core)および[参考実装チュートリアル](https://github.com/pj-ods-a/open-data-spaces-l3-public/blob/main/docs/tutorials/README.md)に示す初期設定が必要です。
-本SDKでは、後者の「[4-1. 環境変数設定]((https://github.com/pj-ods-a/open-data-spaces-l3-public/blob/main/docs/tutorials/README.md#4-1-%E7%92%B0%E5%A2%83%E5%A4%89%E6%95%B0%E8%A8%AD%E5%AE%9A))」までを一括で実施するスクリプトを提供しています。実行方法は以下の通りです。
+L3では、[サービス起動](https://github.com/open-dataspaces/L3-identity-component/tree/main?tab=readme-ov-file#1-%E3%82%B5%E3%83%BC%E3%83%93%E3%82%B9%E8%B5%B7%E5%8B%95)および[参考実装チュートリアル](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials.md)に示す初期設定が必要です。
+本SDKでは、後者の「[2. ユーザ認証システム動作確認](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials.md#2-%E3%83%A6%E3%83%BC%E3%82%B6%E8%AA%8D%E8%A8%BC%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D)」までを一括で実施するスクリプトを提供しています。実行方法は以下の通りです。
 
 ```
 $ cd setup
@@ -204,7 +203,7 @@ $ cd -
 $ docker compose -f l3/docker-compose.yml up -d
 ```
 
-上記の手順で Keycloak に作成される2つのクライアントID（クライアントシステム認証およびユーザ当人認証）は、[2. Keycloak環境設定](https://github.com/pj-ods-a/open-data-spaces-l3-public/blob/main/docs/tutorials/README.md#2-keycloak%E7%92%B0%E5%A2%83%E8%A8%AD%E5%AE%9A) で作成されるものと同一です。
+上記の手順で Keycloak に作成される2つのクライアントID（クライアントシステム認証およびユーザ当人認証）は、[2. ユーザ認証システム動作確認](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials.md#2-%E3%83%A6%E3%83%BC%E3%82%B6%E8%AA%8D%E8%A8%BC%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D) で作成されるものと同一です。
 変更する場合は setup/setup_l3.sh を編集してください。
 
 次に以下のコマンドを実行することで、OpenFGA のストア及び認可モデルを作成し、その内容をL2のデプロイ定義ファイル (l2/docker-compose.yml) に反映します。
@@ -247,7 +246,7 @@ $ curl -X PUT "http://localhost:8082/admin/realms/master" \
 
 ### 運用開始に向けた各種データ設定
 
-[参考実装チュートリアル 5-1. 事業者情報の登録](https://github.com/pj-ods-a/open-data-spaces-l3-public/blob/main/docs/tutorials/README.md#5-1-%E4%BA%8B%E6%A5%AD%E8%80%85%E6%83%85%E5%A0%B1%E3%81%AE%E7%99%BB%E9%8C%B2)に記載の手順に従い、事業者情報を登録してください。宛先のホストには localhost:8080 を指定してください。また、本手順で必要な `$SYSTEM_CLIENT_SECRET` には、l3/docker-compose.yml の以下の設定値を指定してください。
+[参考実装チュートリアル 2-1-2. 事業者情報登録](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials.md#2-1-2-%E4%BA%8B%E6%A5%AD%E8%80%85%E6%83%85%E5%A0%B1%E7%99%BB%E9%8C%B2)に記載の手順に従い、事業者情報を登録してください。宛先のホストには localhost:8080 を指定してください。また、本手順で必要な `$SYSTEM_CLIENT_SECRET` には、l3/docker-compose.yml の以下の設定値を指定してください。
 
 ```
 KEYCLOAK_CREDENTIALS_TOKEN_INTROSPECT_CLIENT_SECRET
@@ -433,7 +432,7 @@ $ docker compose -f mockserver/docker-compose.yml up -d
 本リポジトリのデプロイ定義ファイルで配備されるコンポーネント群、およびそれらと連携するインダストリサービスを用いて、利用者と提供者との間でデータ交換を行う手順を以下に示します。
 
 1. アクセストークンの取得  
-  [L3 参考実装チュートリアル 5-3. ユーザ当人認証（認可コードフロー）](https://github.com/pj-ods-a/open-data-spaces-l3-public/blob/main/docs/tutorials/README.md#5-3-%E3%83%A6%E3%83%BC%E3%82%B6%E5%BD%93%E4%BA%BA%E8%AA%8D%E8%A8%BC%E8%AA%8D%E5%8F%AF%E3%82%B3%E3%83%BC%E3%83%89%E3%83%95%E3%83%AD%E3%83%BC)を実施しアクセストークンを取得します。
+  [L3 参考実装チュートリアル 2-3. ユーザ当人認証（認可コードフロー）](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials.md#2-3-%E3%83%A6%E3%83%BC%E3%82%B6%E5%BD%93%E4%BA%BA%E8%AA%8D%E8%A8%BC%E8%AA%8D%E5%8F%AF%E3%82%B3%E3%83%BC%E3%83%89%E3%83%95%E3%83%AD%E3%83%BC)を実施しアクセストークンを取得します。
 
 2. データアクセス  
   取得したアクセストークンを用いてデータアクセスを実施します。
@@ -459,14 +458,14 @@ $ docker compose -f mockserver/docker-compose.yml up -d
 
 ### 精算・決済
 
-精算・決済サービスでは、データ提供者が登録した利用料モデルに従い、利用者と提供者の間で行われたデータ交換の履歴に基づいて両者への支払／請求額を計算し提示する機能と、外部サービスと連携して実際の決済を行う機能を提供します。取引の実績は利用者・提供者の双方から登録するとともに、Web API転送モジュールから収集したログ情報とも突合することで、正当性を担保します。詳細は[精算・決済サービスのドキュメント](https://github.com/pj-ods-a/open-data-spaces-payment-public)を参照してください。
+精算・決済サービスでは、データ提供者が登録した利用料モデルに従い、利用者と提供者の間で行われたデータ交換の履歴に基づいて両者への支払／請求額を計算し提示する機能と、外部サービスと連携して実際の決済を行う機能を提供します。取引の実績は利用者・提供者の双方から登録するとともに、Web API転送モジュールから収集したログ情報とも突合することで、正当性を担保します。詳細は[精算・決済サービスのドキュメント](https://github.com/open-dataspaces/DCS-Payment)を参照してください。
 
 #### 準備
 
 1. 精算・決済データベースのマイグレーションを実行します。
 
 ```
-$ cd open-data-spaces-payment-public
+$ cd DCS-Payment
 $ docker compose exec payment-app alembic -c migrations/alembic.ini upgrade head
 
 ...
@@ -478,7 +477,7 @@ $ cd -
 ```
 
 2. payment/docker-compose.yml 中の以下のパラメータに, l3/docker-compose.yml 中の `KEYCLOAK_CREDENTIALS_TOKEN_INTROSPECT_CLIENT_SECRET` と同じ値を設定し、精算・決済サービスを再起動して反映します。
-   なお、今回は説明を簡潔にするため、精算・決済サービスの認可機能を無効化しています。実運用システムでは、[精算・決済サービスのドキュメント](/pj-ods-a/open-data-spaces-payment-public/blob/efc14f0c3686836048d7d31359f63feb9116ee64/sample/authorization/readme_authz_openfga.md)を参照の上、認可機能を適切に設定してください。
+   なお、今回は説明を簡潔にするため、精算・決済サービスの認可機能を無効化しています。実運用システムでは、[精算・決済サービスのドキュメント](https://github.com/open-dataspaces/DCS-Payment)を参照の上、認可機能を適切に設定してください。
 
 ```
 L3_CLIENT_SECRET
@@ -488,7 +487,7 @@ L3_CLIENT_SECRET
 $ docker compose up payment-app -d
 ```
 
-3. [L3 参考実装チュートリアル 5-3. ユーザ当人認証（認可コードフロー）](https://github.com/pj-ods-a/open-data-spaces-l3-public/blob/main/docs/tutorials/README.md#5-3-%E3%83%A6%E3%83%BC%E3%82%B6%E5%BD%93%E4%BA%BA%E8%AA%8D%E8%A8%BC%E8%AA%8D%E5%8F%AF%E3%82%B3%E3%83%BC%E3%83%89%E3%83%95%E3%83%AD%E3%83%BC) を実行し、アクセストークンを取得します。
+3. [L3 参考実装チュートリアル 2-3. ユーザ当人認証（認可コードフロー）](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials.md#2-3-%E3%83%A6%E3%83%BC%E3%82%B6%E5%BD%93%E4%BA%BA%E8%AA%8D%E8%A8%BC%E8%AA%8D%E5%8F%AF%E3%82%B3%E3%83%BC%E3%83%89%E3%83%95%E3%83%AD%E3%83%BC) を実行し、アクセストークンを取得します。
 
 #### 利用料モデル登録（提供者）
 
