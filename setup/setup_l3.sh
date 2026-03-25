@@ -64,8 +64,8 @@
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 DOCKER_COMPOSE_FILE="$PROJECT_ROOT/l3/docker-compose.yml"
-KEYCLOAK_JSON_DIR="$PROJECT_ROOT/L3-identity-component/scripts/keycloak/json"
-OPENFGA_JSON_DIR="$PROJECT_ROOT/L3-identity-component/scripts/openfga/json"
+KEYCLOAK_JSON_DIR="$SCRIPT_DIR/keycloak/json"
+OPENFGA_JSON_DIR="$SCRIPT_DIR/openfga"
 SQL_DIR="$SCRIPT_DIR/sql"
 
 # Create a timestamp for the log file
