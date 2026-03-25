@@ -246,8 +246,7 @@ $ curl -X PUT "http://localhost:8082/admin/realms/master" \
 
 ### 運用開始に向けた各種データ設定
 
-[参考実装チュートリアル 2-1-2. 事業者情報登録](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials.md#2-1-2-%E4%BA%8B%E6%A5%AD%E8%80%85%E6%83%85%E5%A0%B1%E7%99%BB%E9%8C%B2)に記載の手順に従い、事業者情報を登録してください。宛先のホストには localhost:8080 を指定してください。また、本手順で必要な `$SYSTEM_CLIENT_SECRET` には、l3/docker-compose.yml の以下の設定値を指定してください。
-
+[参考実装チュートリアル 2-1. 認証情報の作成（事業者情報/個人ユーザ/クライアントID）](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials.md#2-1-%E8%AA%8D%E8%A8%BC%E6%83%85%E5%A0%B1%E3%81%AE%E4%BD%9C%E6%88%90%E4%BA%8B%E6%A5%AD%E8%80%85%E6%83%85%E5%A0%B1%E5%80%8B%E4%BA%BA%E3%83%A6%E3%83%BC%E3%82%B6%E3%82%AF%E3%83%A9%E3%82%A4%E3%82%A2%E3%83%B3%E3%83%88id)に記載の手順に従い、事業者情報/個人ユーザを登録してください。宛先のホストには localhost:8080 を指定してください。また、本手順で必要な `$SYSTEM_CLIENT_SECRET` には、l3/docker-compose.yml の以下の設定値を、API-Keyは`API-Key-Sample`を指定してください。
 ```
 KEYCLOAK_CREDENTIALS_TOKEN_INTROSPECT_CLIENT_SECRET
 ```
@@ -329,6 +328,8 @@ $ curl -i -X POST "http://localhost:8083/stores/$USER_STORE_ID/write" \
 
 ここでは、事業者をインダストリサービスに post を送る権限を持つグループに追加しています。
 付与する権限を変更する際は、`object` プロパティの値を対応するグループに置き換えて実行してください。
+
+なお、前手順のOpenFGAストアへのタプル登録と本手順についてはL3のOpenFGAに対して直接リクエストを送っています。OpenFGAに対して直接リクエストを送ることができない場合は[参考実装チュートリアル 2-4. 認可機能利用](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials.md#2-4-%E8%AA%8D%E5%8F%AF%E6%A9%9F%E8%83%BD%E5%88%A9%E7%94%A8)を参考に、L3 ユーザ認証システムを経由してリクエストを送信してください。
 
 #### L2: Web API転送モジュール
 
