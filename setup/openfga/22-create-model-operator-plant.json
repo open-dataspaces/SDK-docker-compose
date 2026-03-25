@@ -1,0 +1,444 @@
+{
+  "schema_version": "1.1",
+  "type_definitions": [
+    {
+      "type": "user",
+      "relations": {},
+      "metadata": null
+    },
+    {
+      "type": "admin",
+      "relations": {
+        "member": {
+          "this": {}
+        }
+      },
+      "metadata": {
+        "relations": {
+          "member": {
+            "directly_related_user_types": [
+              {
+                "type": "user"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "operator",
+      "relations": {
+        "member": {
+          "this": {}
+        },
+        "admin": {
+          "this": {}
+        },
+        "viewer": {
+          "union": {
+            "child": [
+              {
+                "computedUserset": {
+                  "relation": "member"
+                }
+              },
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "member"
+                  },
+                  "tupleset": {
+                    "relation": "admin"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "updater": {
+          "union": {
+            "child": [
+              {
+                "computedUserset": {
+                  "relation": "member"
+                }
+              },
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "member"
+                  },
+                  "tupleset": {
+                    "relation": "admin"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "metadata": {
+        "relations": {
+          "member": {
+            "directly_related_user_types": [
+              {
+                "type": "user"
+              }
+            ]
+          },
+          "admin": {
+            "directly_related_user_types": [
+              {
+                "type": "admin"
+              }
+            ]
+          },
+          "viewer": {
+            "directly_related_user_types": []
+          },
+          "updater": {
+            "directly_related_user_types": []
+          }
+        }
+      }
+    },
+    {
+      "type": "plant",
+      "relations": {
+        "parent_operator": {
+          "this": {}
+        },
+        "viewer": {
+          "tupleToUserset": {
+            "computedUserset": {
+              "relation": "viewer"
+            },
+            "tupleset": {
+              "relation": "parent_operator"
+            }
+          }
+        }
+      },
+      "metadata": {
+        "relations": {
+          "parent_operator": {
+            "directly_related_user_types": [
+              {
+                "type": "operator"
+              }
+            ]
+          },
+          "viewer": {
+            "directly_related_user_types": []
+          }
+        }
+      }
+    },
+    {
+      "type": "group",
+      "relations": {
+        "admin": {
+          "this": {}
+        },
+        "member": {
+          "this": {}
+        },
+        "editor": {
+          "tupleToUserset": {
+            "computedUserset": {
+              "relation": "member"
+            },
+            "tupleset": {
+              "relation": "admin"
+            }
+          }
+        },
+        "viewer": {
+          "union": {
+            "child": [
+              {
+                "computedUserset": {
+                  "relation": "member"
+                }
+              },
+              {
+                "computedUserset": {
+                  "relation": "editor"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "metadata": {
+        "relations": {
+          "admin": {
+            "directly_related_user_types": [
+              {
+                "type": "admin"
+              }
+            ]
+          },
+          "member": {
+            "directly_related_user_types": [
+              {
+                "type": "user"
+              }
+            ]
+          },
+          "editor": {
+            "directly_related_user_types": []
+          },
+          "viewer": {
+            "directly_related_user_types": []
+          }
+        }
+      }
+    },
+    {
+      "type": "api",
+      "relations": {
+        "parent": {
+          "this": {}
+        },
+        "resource_group_get": {
+          "this": {}
+        },
+        "resource_group_create": {
+          "this": {}
+        },
+        "resource_group_statusup": {
+          "this": {}
+        },
+        "resource_operator": {
+          "this": {}
+        },
+        "resource_plant": {
+          "this": {}
+        },
+        "resource_plant_operator": {
+          "this": {}
+        },
+        "can_get": {
+          "union": {
+            "child": [
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "viewer"
+                  },
+                  "tupleset": {
+                    "relation": "resource_group_get"
+                  }
+                }
+              },
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "viewer"
+                  },
+                  "tupleset": {
+                    "relation": "resource_plant"
+                  }
+                }
+              },
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "viewer"
+                  },
+                  "tupleset": {
+                    "relation": "resource_operator"
+                  }
+                }
+              },
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "can_get"
+                  },
+                  "tupleset": {
+                    "relation": "parent"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "can_create": {
+          "union": {
+            "child": [
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "editor"
+                  },
+                  "tupleset": {
+                    "relation": "resource_group_create"
+                  }
+                }
+              },
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "updater"
+                  },
+                  "tupleset": {
+                    "relation": "resource_operator"
+                  }
+                }
+              },
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "can_create"
+                  },
+                  "tupleset": {
+                    "relation": "parent"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "can_update": {
+          "union": {
+            "child": [
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "updater"
+                  },
+                  "tupleset": {
+                    "relation": "resource_operator"
+                  }
+                }
+              },
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "updater"
+                  },
+                  "tupleset": {
+                    "relation": "resource_plant_operator"
+                  }
+                }
+              },
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "can_update"
+                  },
+                  "tupleset": {
+                    "relation": "parent"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "can_statusup": {
+          "union": {
+            "child": [
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "editor"
+                  },
+                  "tupleset": {
+                    "relation": "resource_group_statusup"
+                  }
+                }
+              },
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "updater"
+                  },
+                  "tupleset": {
+                    "relation": "resource_plant_operator"
+                  }
+                }
+              },
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "can_statusup"
+                  },
+                  "tupleset": {
+                    "relation": "parent"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "metadata": {
+        "relations": {
+          "parent": {
+            "directly_related_user_types": [
+              {
+                "type": "api"
+              }
+            ]
+          },
+          "resource_group_get": {
+            "directly_related_user_types": [
+              {
+                "type": "group"
+              }
+            ]
+          },
+          "resource_group_create": {
+            "directly_related_user_types": [
+              {
+                "type": "group"
+              }
+            ]
+          },
+          "resource_group_statusup": {
+            "directly_related_user_types": [
+              {
+                "type": "group"
+              }
+            ]
+          },
+          "resource_operator": {
+            "directly_related_user_types": [
+              {
+                "type": "operator"
+              }
+            ]
+          },
+          "resource_plant": {
+            "directly_related_user_types": [
+              {
+                "type": "plant"
+              }
+            ]
+          },
+          "resource_plant_operator": {
+            "directly_related_user_types": [
+              {
+                "type": "operator"
+              }
+            ]
+          },
+          "can_get": {
+            "directly_related_user_types": []
+          },
+          "can_create": {
+            "directly_related_user_types": []
+          },
+          "can_update": {
+            "directly_related_user_types": []
+          },
+          "can_statusup": {
+            "directly_related_user_types": []
+          }
+        }
+      }
+    }
+  ]
+}

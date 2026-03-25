@@ -1,0 +1,12 @@
+{
+  "writes": {
+    "tuple_keys": [
+        {"user": "user:${AUTHZ_USER_ID}", "relation": "member", "object": "operator:${AUTHZ_USER_ID}"},
+        {"user": "user:${AUTHZ_USER_ID}", "relation": "member", "object": "admin:managers" },
+        {"user": "operator:${AUTHZ_USER_ID}", "relation": "resource_operator", "object": "api:operator/${AUTHZ_USER_ID}"},
+        {"user": "operator:${AUTHZ_USER_ID}", "relation": "resource_operator", "object": "api:${AUTHZ_USER_ID}/plant"},
+        {"user": "api:root/operator", "relation": "parent", "object": "api:operator/${AUTHZ_USER_ID}"},
+        {"user": "admin:superusers", "relation": "admin", "object": "operator:${AUTHZ_USER_ID}"}
+    ]
+  }
+}

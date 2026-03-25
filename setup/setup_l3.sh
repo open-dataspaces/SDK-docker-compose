@@ -189,10 +189,14 @@ get_compose_env() {
   local key="$2"
   awk -v service="$service" -v key="$key" '
     $0 ~ "^  " service ":" { in_service=1; in_env=0; next }
+    in_service && $0 ~ "^[[:space:]]*$" { next }
+    in_service && $0 ~ "^[[:space:]]*#" { next }
     in_service && $0 ~ "^[^[:space:]]" { in_service=0; in_env=0 }
     in_service && $0 ~ "^  [^[:space:]].*:$" { in_service=0; in_env=0 }
     in_service && $0 ~ "^    environment:[[:space:]]*$" { in_env=1; next }
-    in_service && in_env && $0 !~ "^      " { in_env=0 }
+    in_service && in_env && $0 ~ "^[[:space:]]*$" { next }
+    in_service && in_env && $0 ~ "^      #" { next }
+    in_service && in_env && $0 ~ "^    [^[:space:]].*:$" { in_env=0 }
     in_service && in_env && $0 ~ "^      " key ":" {
       value = $0
       sub("^      " key ":[[:space:]]*", "", value)
@@ -209,6 +213,8 @@ get_compose_value() {
   local key="$2"
   awk -v service="$service" -v key="$key" '
     $0 ~ "^  " service ":" { in_service=1; next }
+    in_service && $0 ~ "^[[:space:]]*$" { next }
+    in_service && $0 ~ "^[[:space:]]*#" { next }
     in_service && $0 ~ "^[^[:space:]]" { in_service=0 }
     in_service && $0 ~ "^  [^[:space:]].*:$" { in_service=0 }
     in_service && $0 ~ "^    " key ":" {
@@ -226,13 +232,15 @@ get_compose_host_port() {
   local service="$1"
   local container_port="$2"
   awk -v service="$service" -v container_port="$container_port" '
-    match_port(line) {
-      if (match(line, /^      - "?([0-9]+):([0-9]+)"?/, m) && m[2] == container_port) {
+    function match_port(line) {
+      if (match(line, /^[[:space:]]*-[[:space:]]*"?([0-9]+):([0-9]+)"?/, m) && m[2] == container_port) {
         print m[1]
         exit
       }
     }
     $0 ~ "^  " service ":" { in_service=1; in_ports=0; next }
+    in_service && $0 ~ "^[[:space:]]*$" { next }
+    in_service && $0 ~ "^[[:space:]]*#" { next }
     in_service && $0 ~ "^[^[:space:]]" { in_service=0; in_ports=0 }
     in_service && $0 ~ "^  [^[:space:]].*:$" { in_service=0; in_ports=0 }
     in_service && $0 ~ "^    ports:[[:space:]]*$" { in_ports=1; next }
@@ -287,15 +295,15 @@ if [ $? -ne 0 ]; then
     finish_error 31 "Failed to copy 3_setup_app_db.sql into PostgreSQL container."
 fi
 
-docker exec -it "$BOOTSTRAP_POSTGRES_CONTAINER_NAME" bash -c "PGPASSWORD=password psql -U keycloak -d keycloak -f /tmp/1_create_app_user.sql -q"
+docker exec -i "$BOOTSTRAP_POSTGRES_CONTAINER_NAME" bash -c "PGPASSWORD=password psql -X -P pager=off -U keycloak -d keycloak -f /tmp/1_create_app_user.sql -q  -v user_password=password"
 if [ $? -ne 0 ]; then
     finish_error 31 "Failed to execute 1_create_app_user.sql in PostgreSQL container."
 fi
-docker exec -it "$BOOTSTRAP_POSTGRES_CONTAINER_NAME" bash -c "PGPASSWORD=password psql -U keycloak -d keycloak -f /tmp/2_create_app_db.sql -q"
+docker exec -i "$BOOTSTRAP_POSTGRES_CONTAINER_NAME" bash -c "PGPASSWORD=password psql -X -P pager=off -U keycloak -d keycloak -f /tmp/2_create_app_db.sql -q"
 if [ $? -ne 0 ]; then
     finish_error 31 "Failed to execute 2_create_app_db.sql in PostgreSQL container."
 fi
-docker exec -it "$BOOTSTRAP_POSTGRES_CONTAINER_NAME" bash -c "PGPASSWORD=password psql -U app_ods -d db_ods -f /tmp/3_setup_app_db.sql -q"
+docker exec -i "$BOOTSTRAP_POSTGRES_CONTAINER_NAME" bash -c "PGPASSWORD=password psql -X -P pager=off -U app_ods -d db_ods -f /tmp/3_setup_app_db.sql -q"
 if [ $? -ne 0 ]; then
     finish_error 31 "Failed to execute 3_setup_app_db.sql in PostgreSQL container."
 fi
@@ -321,6 +329,10 @@ check_path "$SQL_DIR/4_setup_app_table.sql" "<path_to_setup_database_sql>"
 echo "Finish: 1-1. Required files are present."
 
 echo "Start: 1-2. Loading environment variables from docker-compose.yml..."
+KEYCLOAK_API_ENDPOINT_COMPOSE=$(strip_quotes "$(get_compose_env l3-app KEYCLOAK_API_ENDPOINT)")
+KEYCLOAK_AUTHORIZATION_URL_COMPOSE=$(strip_quotes "$(get_compose_env l3-app KEYCLOAK_AUTHORIZATION_URL)")
+OPENFGA_API_ENDPOINT_COMPOSE=$(strip_quotes "$(get_compose_env l3-app OPENFGA_API_ENDPOINT)")
+OPENFGA_API_ENDPOINT_HOST_ACCESSIBLE=$(printf '%s' "$OPENFGA_API_ENDPOINT_COMPOSE" | sed 's#://openfga\([:/]\)#://localhost\1#g')
 KEYCLOAK_PORT=$(strip_quotes "$(get_compose_host_port keycloak 8082)")
 OPENFGA_PORT=$(strip_quotes "$(get_compose_host_port openfga 8083)")
 SPRING_DATASOURCE_URL=$(strip_quotes "$(get_compose_env l3-app SPRING_DATASOURCE_URL)")
@@ -331,6 +343,8 @@ if [ -z "$POSTGRES_CONTAINER_NAME" ]; then
     POSTGRES_CONTAINER_NAME="postgres"
 fi
 
+KEYCLOAK_BASE_URL="${KEYCLOAK_BASE_URL:-$KEYCLOAK_API_ENDPOINT_COMPOSE}"
+KEYCLOAK_BASE_URL="${KEYCLOAK_BASE_URL:-$KEYCLOAK_AUTHORIZATION_URL_COMPOSE}"
 KEYCLOAK_BASE_URL="${KEYCLOAK_BASE_URL:-http://localhost:${KEYCLOAK_PORT}}"
 KEYCLOAK_REALM="${KEYCLOAK_REALM:-$(strip_quotes "$(get_compose_env l3-app KEYCLOAK_REALM)")}"
 KEYCLOAK_MASTER_REALM="${KEYCLOAK_MASTER_REALM:-$(strip_quotes "$(get_compose_env l3-app KEYCLOAK_CREDENTIALS_ADMIN_REALM)")}"
@@ -339,6 +353,7 @@ KEYCLOAK_USERNAME="${KEYCLOAK_USERNAME:-$(strip_quotes "$(get_compose_env l3-app
 KEYCLOAK_PASSWORD="${KEYCLOAK_PASSWORD:-$(strip_quotes "$(get_compose_env l3-app KEYCLOAK_CREDENTIALS_ADMIN_PASSWORD)")}"
 KEYCLOAK_CLIENT_ID_API_ADMIN="${KEYCLOAK_CLIENT_ID_API_ADMIN:-$(strip_quotes "$(get_compose_env l3-app KEYCLOAK_CREDENTIALS_TOKEN_INTROSPECT_CLIENT_ID)")}"
 KEYCLOAK_CLAIM_OPEN_SYSTEM_ID_API_ADMIN="${KEYCLOAK_CLAIM_OPEN_SYSTEM_ID_API_ADMIN:-open_system_id_sample}"
+OPENFGA_BASE_URL="${OPENFGA_BASE_URL:-$OPENFGA_API_ENDPOINT_HOST_ACCESSIBLE}"
 OPENFGA_BASE_URL="${OPENFGA_BASE_URL:-http://localhost:${OPENFGA_PORT}}"
 POSTGRES_HOST="${POSTGRES_HOST:-localhost}"
 POSTGRES_PORT="${POSTGRES_PORT:-5432}"
@@ -751,6 +766,8 @@ docker exec -i \
   -e L3TBL_CIDRS_CIDR="$L3TBL_CIDRS_CIDR" \
   "$POSTGRES_CONTAINER_NAME" \
   bash -lc 'PGPASSWORD="$POSTGRES_PASSWORD" psql \
+    -X \
+    -P pager=off \
     -U "$POSTGRES_USER" \
     -d "$POSTGRES_DB" \
     -h "$POSTGRES_HOST" \
@@ -796,5 +813,6 @@ echo "API Authorization client secret in Keycloak: $KEYCLOAK_CLIENT_SECRET_API_A
 echo "API Authorization store ID in OpenFGA: $API_AUTHZ_STORE_ID"
 echo "Realm-store binding store ID in OpenFGA: $REALM_AUTHZ_STORE_ID"
 echo "Operator-plant authorization store ID in OpenFGA: $OPERATOR_PLANT_AUTHZ_STORE_ID"
+echo "System API key in PostgreSQL (use this in API-Key header): $L3TBL_API_KEY"
 echo "System API key ID in PostgreSQL: $L3TBL_API_KEYS_ID"
 echo "Updated docker-compose file: $DOCKER_COMPOSE_FILE"

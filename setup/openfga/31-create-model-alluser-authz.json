@@ -1,0 +1,178 @@
+{
+  "schema_version": "1.1",
+  "type_definitions": [
+    {
+      "type": "user",
+      "relations": {},
+      "metadata": null
+    },
+    {
+      "type": "role",
+      "relations": {
+        "member": {
+          "this": {}
+        }
+      },
+      "metadata": {
+        "relations": {
+          "member": {
+            "directly_related_user_types": [
+              {
+                "type": "user"
+              },
+              {
+                "type": "user",
+                "wildcard": {}
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "api",
+      "relations": {
+        "allowed_get_roles": {
+          "this": {}
+        },
+        "allowed_post_roles": {
+          "this": {}
+        },
+        "allowed_put_roles": {
+          "this": {}
+        },
+        "allowed_delete_roles": {
+          "this": {}
+        },
+        "GET": {
+          "union": {
+            "child": [
+              {
+                "computedUserset": {
+                  "relation": "allowed_get_roles"
+                }
+              },
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "member"
+                  },
+                  "tupleset": {
+                    "relation": "allowed_get_roles"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "POST": {
+          "union": {
+            "child": [
+              {
+                "computedUserset": {
+                  "relation": "allowed_post_roles"
+                }
+              },
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "member"
+                  },
+                  "tupleset": {
+                    "relation": "allowed_post_roles"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "PUT": {
+          "union": {
+            "child": [
+              {
+                "computedUserset": {
+                  "relation": "allowed_put_roles"
+                }
+              },
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "member"
+                  },
+                  "tupleset": {
+                    "relation": "allowed_put_roles"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "DELETE": {
+          "union": {
+            "child": [
+              {
+                "computedUserset": {
+                  "relation": "allowed_delete_roles"
+                }
+              },
+              {
+                "tupleToUserset": {
+                  "computedUserset": {
+                    "relation": "member"
+                  },
+                  "tupleset": {
+                    "relation": "allowed_delete_roles"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "metadata": {
+        "relations": {
+          "allowed_get_roles": {
+            "directly_related_user_types": [
+              {
+                "type": "role"
+              }
+            ]
+          },
+          "allowed_post_roles": {
+            "directly_related_user_types": [
+              {
+                "type": "role"
+              }
+            ]
+          },
+          "allowed_put_roles": {
+            "directly_related_user_types": [
+              {
+                "type": "role"
+              }
+            ]
+          },
+          "allowed_delete_roles": {
+            "directly_related_user_types": [
+              {
+                "type": "role"
+              }
+            ]
+          },
+          "GET": {
+            "directly_related_user_types": []
+          },
+          "POST": {
+            "directly_related_user_types": []
+          },
+          "PUT": {
+            "directly_related_user_types": []
+          },
+          "DELETE": {
+            "directly_related_user_types": []
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "writes": {
+    "tuple_keys": [
+      {
+        "user": "role:authz-models-admin",
+        "relation": "allowed_get_roles",
+        "object": "api:/authz/stores/{store_id}/authorization-models"
+      }
+      ,{
+        "user": "role:authz-models-admin",
+        "relation": "allowed_post_roles",
+        "object": "api:/authz/stores/{store_id}/authorization-models"
+      }
+      ,{
+        "user": "role:authz-tuples-admin",
+        "relation": "allowed_post_roles",
+        "object": "api:/authz/stores/{store_id}/write"
+      }
+      ,{
+        "user": "role:authz-tuples-admin",
+        "relation": "allowed_post_roles",
+        "object": "api:/authz/stores/{store_id}/read"
+      }
+      ,{
+        "user": "role:authz-user-admin",
+        "relation": "allowed_post_roles",
+        "object": "api:/account/user"
+      }
+      ,{
+        "user": "role:authz-client-admin",
+        "relation": "allowed_post_roles",
+        "object": "api:/auth/clients"
+      }
+      ,{
+        "user": "role:authz-client-admin",
+        "relation": "allowed_post_roles",
+        "object": "api:/auth/clients/secret/{client_uuid}"
+      }
+      ,{
+        "user": "role:authz-client-admin",
+        "relation": "allowed_put_roles",
+        "object": "api:/auth/clients/{client_id}"
+      }
+      ,{
+        "user": "role:authz-client-admin",
+        "relation": "allowed_delete_roles",
+        "object": "api:/auth/clients/{client_id}"
+      }
+      ,{
+        "user": "role:authz-stores-admin",
+        "relation": "allowed_post_roles",
+        "object": "api:/authz/stores"
+      }
+      ,{
+        "user": "role:authz-stores-admin",
+        "relation": "allowed_get_roles",
+        "object": "api:/authz/stores/{store_id}"
+      }
+      ,{
+        "user": "role:authz-stores-admin",
+        "relation": "allowed_delete_roles",
+        "object": "api:/authz/stores/{store_id}"
+      }
+    ],
+    "on_duplicate": "ignore"
+  }
+}

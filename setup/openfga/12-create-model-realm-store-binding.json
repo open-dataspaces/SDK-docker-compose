@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.1",
+  "type_definitions": [
+    {
+      "type": "realm",
+      "relations": {},
+      "metadata": null
+    },
+    {
+      "type": "store",
+      "relations": {
+        "bound_to": {
+          "this": {}
+        }
+      },
+      "metadata": {
+        "relations": {
+          "bound_to": {
+            "directly_related_user_types": [
+              {
+                "type": "realm"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
