@@ -1,8 +1,0 @@
-{
-  "writes": {
-    "tuple_keys": [
-      { "user": "user:${OPERATOR_ID}", "relation": "member", "object": "group:schema-public-admin" }
-    ],
-    "on_duplicate": "ignore"
-  }
-}

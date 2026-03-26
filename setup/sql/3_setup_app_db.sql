@@ -43,6 +43,7 @@ CREATE TABLE auth.tbl_api_keys (
     api_key character varying(256) NOT NULL,
     application_name character varying(256),
     idp_realm character varying(256) NOT NULL,
+    usecase character varying(256) NOT NULL,
     deleted_flag boolean NOT NULL,
     effective_start_date date NOT NULL,
     effective_end_date date NOT NULL,
@@ -88,6 +89,13 @@ COMMENT ON COLUMN auth.tbl_api_keys.application_name IS 'アプリケーショ�
 --
 
 COMMENT ON COLUMN auth.tbl_api_keys.idp_realm IS 'レルム';
+
+
+--
+-- Name: COLUMN tbl_api_keys.usecase; Type: COMMENT; Schema: auth; Owner: app_ods
+--
+
+COMMENT ON COLUMN auth.tbl_api_keys.usecase IS 'ユースケース';
 
 
 --
@@ -146,6 +154,7 @@ COMMENT ON COLUMN auth.tbl_api_keys.updated_user_id IS '更新ユーザ';
 CREATE TABLE auth.tbl_authz_stores (
     pdp_store_id character varying(256) NOT NULL,
     pdp_store_name character varying(256) NOT NULL,
+    pdp_store_purpose character varying(256) NOT NULL,
     environment_name character varying(256) NOT NULL,
     idp_realm character varying(256) NOT NULL,
     deleted_flag boolean NOT NULL,
@@ -179,6 +188,13 @@ COMMENT ON COLUMN auth.tbl_authz_stores.pdp_store_id IS 'ストアID';
 --
 
 COMMENT ON COLUMN auth.tbl_authz_stores.pdp_store_name IS 'ストア名';
+
+
+--
+-- Name: COLUMN tbl_authz_stores.pdp_store_purpose; Type: COMMENT; Schema: auth; Owner: app_ods
+--
+
+COMMENT ON COLUMN auth.tbl_authz_stores.pdp_store_purpose IS 'ストア用途';
 
 
 --
@@ -242,6 +258,103 @@ COMMENT ON COLUMN auth.tbl_authz_stores.updated_at IS '更新日時';
 --
 
 COMMENT ON COLUMN auth.tbl_authz_stores.updated_user_id IS '更新ユーザ';
+
+
+--
+-- Name: tbl_authz_uc_stores; Type: TABLE; Schema: auth; Owner: app_ods
+--
+
+CREATE TABLE auth.tbl_authz_uc_stores (
+    uc_store_id character varying(256) NOT NULL,
+    uc_store_name character varying(256) NOT NULL,
+    usecase character varying(256) NOT NULL,
+    deleted_flag boolean NOT NULL,
+    effective_start_date date NOT NULL,
+    effective_end_date date NOT NULL,
+    created_at timestamp(6) without time zone,
+    created_user_id text,
+    updated_at timestamp(6) without time zone,
+    updated_user_id text
+);
+
+
+ALTER TABLE auth.tbl_authz_uc_stores OWNER TO app_ods;
+
+--
+-- Name: TABLE tbl_authz_uc_stores; Type: COMMENT; Schema: auth; Owner: app_ods
+--
+
+COMMENT ON TABLE auth.tbl_authz_uc_stores IS 'UC認可ストア管理テーブル';
+
+
+--
+-- Name: COLUMN tbl_authz_uc_stores.uc_store_id; Type: COMMENT; Schema: auth; Owner: app_ods
+--
+
+COMMENT ON COLUMN auth.tbl_authz_uc_stores.uc_store_id IS 'ストアID';
+
+
+--
+-- Name: COLUMN tbl_authz_uc_stores.uc_store_name; Type: COMMENT; Schema: auth; Owner: app_ods
+--
+
+COMMENT ON COLUMN auth.tbl_authz_uc_stores.uc_store_name IS 'ストア名';
+
+
+--
+-- Name: COLUMN tbl_authz_uc_stores.usecase; Type: COMMENT; Schema: auth; Owner: app_ods
+--
+
+COMMENT ON COLUMN auth.tbl_authz_uc_stores.usecase IS 'ユースケース';
+
+
+--
+-- Name: COLUMN tbl_authz_uc_stores.deleted_flag; Type: COMMENT; Schema: auth; Owner: app_ods
+--
+
+COMMENT ON COLUMN auth.tbl_authz_uc_stores.deleted_flag IS '論理削除フラグ';
+
+
+--
+-- Name: COLUMN tbl_authz_uc_stores.effective_start_date; Type: COMMENT; Schema: auth; Owner: app_ods
+--
+
+COMMENT ON COLUMN auth.tbl_authz_uc_stores.effective_start_date IS '有効開始日';
+
+
+--
+-- Name: COLUMN tbl_authz_uc_stores.effective_end_date; Type: COMMENT; Schema: auth; Owner: app_ods
+--
+
+COMMENT ON COLUMN auth.tbl_authz_uc_stores.effective_end_date IS '有効終了日';
+
+
+--
+-- Name: COLUMN tbl_authz_uc_stores.created_at; Type: COMMENT; Schema: auth; Owner: app_ods
+--
+
+COMMENT ON COLUMN auth.tbl_authz_uc_stores.created_at IS '作成日時';
+
+
+--
+-- Name: COLUMN tbl_authz_uc_stores.created_user_id; Type: COMMENT; Schema: auth; Owner: app_ods
+--
+
+COMMENT ON COLUMN auth.tbl_authz_uc_stores.created_user_id IS '作成ユーザ';
+
+
+--
+-- Name: COLUMN tbl_authz_uc_stores.updated_at; Type: COMMENT; Schema: auth; Owner: app_ods
+--
+
+COMMENT ON COLUMN auth.tbl_authz_uc_stores.updated_at IS '更新日時';
+
+
+--
+-- Name: COLUMN tbl_authz_uc_stores.updated_user_id; Type: COMMENT; Schema: auth; Owner: app_ods
+--
+
+COMMENT ON COLUMN auth.tbl_authz_uc_stores.updated_user_id IS '更新ユーザ';
 
 
 --
@@ -584,6 +697,14 @@ ALTER TABLE ONLY auth.tbl_authz_stores
 
 
 --
+-- Name: tbl_authz_stores tbl_authz_uc_stores_pkey; Type: CONSTRAINT; Schema: auth; Owner: app_ods
+--
+
+ALTER TABLE ONLY auth.tbl_authz_uc_stores
+    ADD CONSTRAINT tbl_authz_uc_stores_pkey PRIMARY KEY (uc_store_id);
+
+
+--
 -- Name: tbl_cidrs tbl_cidrs_pkey; Type: CONSTRAINT; Schema: auth; Owner: app_ods
 --
 
@@ -616,11 +737,19 @@ ALTER TABLE ONLY auth.tbl_api_keys
 
 
 --
--- Name: tbl_authz_stores uk_tbl_authz_stores_idp_realm_and_environment_name; Type: CONSTRAINT; Schema: auth; Owner: app_ods
+-- Name: tbl_authz_stores uk_tbl_authz_stores_env_realm_purpose; Type: CONSTRAINT; Schema: auth; Owner: app_ods
 --
 
 ALTER TABLE ONLY auth.tbl_authz_stores
-    ADD CONSTRAINT uk_tbl_authz_stores_idp_realm_and_environment_name UNIQUE (environment_name, idp_realm);
+    ADD CONSTRAINT uk_tbl_authz_stores_env_realm_purpose UNIQUE (environment_name, idp_realm, pdp_store_purpose);
+
+
+--
+-- Name: tbl_authz_uc_stores uk_tbl_authz_uc_stores_usecase; Type: CONSTRAINT; Schema: auth; Owner: app_ods
+--
+
+ALTER TABLE ONLY auth.tbl_authz_uc_stores
+    ADD CONSTRAINT uk_tbl_authz_uc_stores_usecase UNIQUE (usecase);
 
 
 --

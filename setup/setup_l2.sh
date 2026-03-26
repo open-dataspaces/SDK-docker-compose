@@ -13,18 +13,17 @@ echo "Creating User Store..."
 USER_STORE_ID="$(curl -sS -X POST \
   "$API_ENDPOINT/stores" \
   -H "Content-Type: application/json" \
-  -d @openfga/5-create-user-store.json \
+  -d @openfga/51-create-user-store.json \
   | jq -r '.id'
 )"
 
 echo "Create Store completed."
-echo "USER_STORE_ID=$USER_STORE_ID"
 
 # Create Model
 MODEL_RESPONSE=$(curl -i -X POST \
   $API_ENDPOINT/stores/$USER_STORE_ID/authorization-models \
   -H "Content-Type: application/json" \
-  -d @openfga/6-create-user-store-model.json
+  -d @openfga/52-create-user-store-model.json
 )
 
 # Extract model_id

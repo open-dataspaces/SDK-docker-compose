@@ -1,5 +1,5 @@
 -- command
--- psql -h ::1 -p 5433 -U keycloak -d keycloak -f 1_create_app_db.sql
+-- psql -h ::1 -p 5433 -U keycloak -d keycloak -f 1_create_app_user.sql
 
 --
 -- PostgreSQL database dump
@@ -21,15 +21,6 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Create User; Owner: keycloak
+-- Create User; Owner: app_ods
 --
-CREATE USER app_ods WITH PASSWORD 'password';
-
---
--- Create database; Owner: keycloak
---
-CREATE DATABASE db_ods WITH OWNER app_ods;
-
---
--- Name: auth; Type: SCHEMA; Schema: -; Owner: keycloak
---
+CREATE USER app_ods WITH PASSWORD :'user_password';

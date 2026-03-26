@@ -246,8 +246,7 @@ $ curl -X PUT "http://localhost:8082/admin/realms/master" \
 
 ### 運用開始に向けた各種データ設定
 
-[参考実装チュートリアル 2-1-2. 事業者情報登録](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials.md#2-1-2-%E4%BA%8B%E6%A5%AD%E8%80%85%E6%83%85%E5%A0%B1%E7%99%BB%E9%8C%B2)に記載の手順に従い、事業者情報を登録してください。宛先のホストには localhost:8080 を指定してください。また、本手順で必要な `$SYSTEM_CLIENT_SECRET` には、l3/docker-compose.yml の以下の設定値を指定してください。
-
+[参考実装チュートリアル 2-1. 認証情報の作成（事業者情報/個人ユーザ/クライアントID）](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials.md#2-1-%E8%AA%8D%E8%A8%BC%E6%83%85%E5%A0%B1%E3%81%AE%E4%BD%9C%E6%88%90%E4%BA%8B%E6%A5%AD%E8%80%85%E6%83%85%E5%A0%B1%E5%80%8B%E4%BA%BA%E3%83%A6%E3%83%BC%E3%82%B6%E3%82%AF%E3%83%A9%E3%82%A4%E3%82%A2%E3%83%B3%E3%83%88id)に記載の手順に従い、事業者情報の登録から[2-1-5. 事業者クライアントシークレット取得](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials.md#2-1-5-%E4%BA%8B%E6%A5%AD%E8%80%85%E3%82%AF%E3%83%A9%E3%82%A4%E3%82%A2%E3%83%B3%E3%83%88%E3%82%B7%E3%83%BC%E3%82%AF%E3%83%AC%E3%83%83%E3%83%88%E5%8F%96%E5%BE%97)までを実行してください。宛先のホストには localhost:8080 を指定してください。また、本手順で必要な `$SYSTEM_CLIENT_SECRET` には、l3/docker-compose.yml の以下の設定値を、`API-Key`は`API-Key-Sample`を、`client_id`には`system-auth-sample`指定してください。
 ```
 KEYCLOAK_CREDENTIALS_TOKEN_INTROSPECT_CLIENT_SECRET
 ```
@@ -329,6 +328,8 @@ $ curl -i -X POST "http://localhost:8083/stores/$USER_STORE_ID/write" \
 
 ここでは、事業者をインダストリサービスに post を送る権限を持つグループに追加しています。
 付与する権限を変更する際は、`object` プロパティの値を対応するグループに置き換えて実行してください。
+
+なお、前手順のOpenFGAストアへのタプル登録と本手順についてはL3のOpenFGAに対して直接リクエストを送っています。OpenFGAに対して直接リクエストを送ることができない場合は[参考実装チュートリアル 2-4. 認可機能利用](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials.md#2-4-%E8%AA%8D%E5%8F%AF%E6%A9%9F%E8%83%BD%E5%88%A9%E7%94%A8)を参考に、L3 ユーザ認証システムを経由してリクエストを送信してください。
 
 #### L2: Web API転送モジュール
 
@@ -432,7 +433,7 @@ $ docker compose -f mockserver/docker-compose.yml up -d
 本リポジトリのデプロイ定義ファイルで配備されるコンポーネント群、およびそれらと連携するインダストリサービスを用いて、利用者と提供者との間でデータ交換を行う手順を以下に示します。
 
 1. アクセストークンの取得  
-  [L3 参考実装チュートリアル 2-3. ユーザ当人認証（認可コードフロー）](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials.md#2-3-%E3%83%A6%E3%83%BC%E3%82%B6%E5%BD%93%E4%BA%BA%E8%AA%8D%E8%A8%BC%E8%AA%8D%E5%8F%AF%E3%82%B3%E3%83%BC%E3%83%89%E3%83%95%E3%83%AD%E3%83%BC)を実施しアクセストークンを取得します。
+  [L3 参考実装チュートリアル 2-2-1. アクセストークン取得（事業者クライアントID認証）](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials.md#2-2-1-%E3%82%A2%E3%82%AF%E3%82%BB%E3%82%B9%E3%83%88%E3%83%BC%E3%82%AF%E3%83%B3%E5%8F%96%E5%BE%97%E4%BA%8B%E6%A5%AD%E8%80%85%E3%82%AF%E3%83%A9%E3%82%A4%E3%82%A2%E3%83%B3%E3%83%88id%E8%AA%8D%E8%A8%BC)を実施しアクセストークンを取得します。なお、宛先のホストには localhost:8080 を、`API-Key`は`API-Key-Sample`を指定してください。
 
 2. データアクセス  
   取得したアクセストークンを用いてデータアクセスを実施します。
@@ -447,14 +448,12 @@ $ docker compose -f mockserver/docker-compose.yml up -d
       -H "Prefer: return=representation" \
       -d '{"userid":112233}' | jq .
     ```
-
-  /testエンドポイントから、以下のようなレスポンスが返却されます。
-
-  ```
-  {
-    "message": "Request successfully delivered!"
-  }
-  ```
+    /testエンドポイントから、以下のようなレスポンスが返却されます。
+    ```
+    {
+      "message": "Request successfully delivered!"
+    }
+    ```
 
 ### 精算・決済
 

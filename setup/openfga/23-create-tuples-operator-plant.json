@@ -1,0 +1,16 @@
+{
+  "writes": {
+    "tuple_keys": [
+        { "user": "admin:managers", "relation": "admin", "object": "group:managers" },
+        { "user": "group:managers", "relation": "resource_group_create", "object": "api:operator" },
+        { "user": "group:managers", "relation": "resource_group_get", "object": "api:root/operator" },
+        { "user": "group:managers", "relation": "resource_group_get", "object": "api:root/plant" },
+        { "user": "admin:superusers", "relation": "admin", "object": "group:superusers" },
+        { "user": "group:superusers", "relation": "resource_group_create", "object": "api:operator" },
+        { "user": "group:superusers", "relation": "resource_group_get", "object": "api:root/operator" },
+        { "user": "group:superusers", "relation": "resource_group_statusup", "object": "api:root/operator" },
+        { "user": "group:superusers", "relation": "resource_group_get", "object": "api:root/plant" },
+        { "user": "group:superusers", "relation": "resource_group_statusup", "object": "api:root/plant" }
+    ]
+  }
+}

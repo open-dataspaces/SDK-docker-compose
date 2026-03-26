@@ -1,0 +1,4 @@
+{
+  "name": "${AUTHZ_USER_STORE_NAME}",
+  "description": "${AUTHZ_USER_STORE_NAME} OpenFGA Store"
+}

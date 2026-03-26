@@ -81,10 +81,64 @@
             ]
           }
         },
+        "PUT": {
+          "union": {
+            "child": [
+              {
+                "computedUserset": {
+                  "object": "",
+                  "relation": "allowed_put_roles"
+                }
+              },
+              {
+                "tupleToUserset": {
+                  "tupleset": {
+                    "object": "",
+                    "relation": "allowed_put_roles"
+                  },
+                  "computedUserset": {
+                    "object": "",
+                    "relation": "member"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "DELETE": {
+          "union": {
+            "child": [
+              {
+                "computedUserset": {
+                  "object": "",
+                  "relation": "allowed_delete_roles"
+                }
+              },
+              {
+                "tupleToUserset": {
+                  "tupleset": {
+                    "object": "",
+                    "relation": "allowed_delete_roles"
+                  },
+                  "computedUserset": {
+                    "object": "",
+                    "relation": "member"
+                  }
+                }
+              }
+            ]
+          }
+        },
         "allowed_get_roles": {
           "this": {}
         },
         "allowed_post_roles": {
+          "this": {}
+        },
+        "allowed_put_roles": {
+          "this": {}
+        },
+        "allowed_delete_roles": {
           "this": {}
         }
       },
@@ -100,6 +154,16 @@
             "module": "",
             "source_info": null
           },
+          "PUT": {
+            "directly_related_user_types": [],
+            "module": "",
+            "source_info": null
+          },
+          "DELETE": {
+            "directly_related_user_types": [],
+            "module": "",
+            "source_info": null
+          },
           "allowed_get_roles": {
             "directly_related_user_types": [
               {
@@ -111,6 +175,26 @@
             "source_info": null
           },
           "allowed_post_roles": {
+            "directly_related_user_types": [
+              {
+                "type": "role",
+                "condition": ""
+              }
+            ],
+            "module": "",
+            "source_info": null
+          },
+          "allowed_put_roles": {
+            "directly_related_user_types": [
+              {
+                "type": "role",
+                "condition": ""
+              }
+            ],
+            "module": "",
+            "source_info": null
+          },
+          "allowed_delete_roles": {
             "directly_related_user_types": [
               {
                 "type": "role",

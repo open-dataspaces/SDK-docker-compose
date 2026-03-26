@@ -1,0 +1,26 @@
+{
+  "attributes": [
+    {
+      "name": "username",
+      "displayName": "${username}",
+      "permissions": { "view": ["user","admin"], "edit": ["user","admin"] },
+      "validations": { "length": { "min": 1 } }
+    },
+    {
+      "name": "email",
+      "displayName": "${email}",
+      "permissions": { "view": ["user","admin"], "edit": ["user","admin"] },
+      "validations": { "email": {} }
+    },
+    {
+      "name": "firstName",
+      "displayName": "${firstName}",
+      "permissions": { "view": ["user","admin"], "edit": ["user","admin"] }
+    },
+    {
+      "name": "lastName",
+      "displayName": "${lastName}",
+      "permissions": { "view": ["user","admin"], "edit": ["user","admin"] }
+    }
+  ]
+}
