@@ -486,7 +486,42 @@ L3_CLIENT_SECRET
 $ docker compose up payment-app -d
 ```
 
-3. [L3 参考実装チュートリアル 2-3. ユーザ当人認証（認可コードフロー）](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials.md#2-3-%E3%83%A6%E3%83%BC%E3%82%B6%E5%BD%93%E4%BA%BA%E8%AA%8D%E8%A8%BC%E8%AA%8D%E5%8F%AF%E3%82%B3%E3%83%BC%E3%83%89%E3%83%95%E3%83%AD%E3%83%BC) を実行し、アクセストークンを取得します。
+3. あらかじめ、動作確認用にダミーの決済サービスと、その決済サービスに紐付けられたデータ提供者・データ利用者をDBに登録します。
+   ここでは簡単のため、データ提供者とデータ利用者に同一のIDを使用します。
+   また、登録したサービスのIDを変数に記憶しておきます。
+
+```
+$ PAYMENT_SERVICE_ID=$(uuidgen -t)
+$ docker exec -it payment-db psql fastapi_db -U postgres -c "INSERT INTO payment_services VALUES ('$PAYMENT_SERVICE_ID', 'test_service', 'http://example.com/')"
+INSERT 0 1
+$ docker exec -it payment-db psql fastapi_db -U postgres -c 'SELECT * FROM payment_services'
+          payment_service_id          | payment_service_name | payment_service_url |          created_at           |          updated_at           
+--------------------------------------+----------------------+---------------------+-------------------------------+-------------------------------
+ e5a8e2ee-28cf-11f1-bd41-5847ca798141 | test_service         | http://example.com/ | 2026-03-26 04:54:44.932769+00 | 2026-03-26 04:54:44.932769+00
+(1 row)
+
+$ docker exec -it payment-db psql fastapi_db -U postgres -c "INSERT INTO payment_service_user_registrations VALUES ('$OPERATOR_ID', '$PAYMENT_SERVICE_ID', '$OPERATOR_ID', '$OPERATOR_ID')"
+INSERT 0 1
+$ docker exec -it payment-db psql fastapi_db -U postgres -c '\x' -c 'SELECT * FROM payment_service_user_registrations'
+Expanded display is on.
+-[ RECORD 1 ]-----------+-------------------------------------
+payment_service_user_id | e6393807-ff52-4985-bf15-7f9f98adf0b1
+payment_service_id      | e5a8e2ee-28cf-11f1-bd41-5847ca798141
+consumer_id             | e6393807-ff52-4985-bf15-7f9f98adf0b1
+provider_id             | e6393807-ff52-4985-bf15-7f9f98adf0b1
+company_name            | 
+department              | 
+customer_name           | 
+zip_code                | 
+address                 | 
+tel_no                  | 
+external_buyer_id       | 
+external_data           | 
+created_at              | 2026-03-26 05:13:11.181819+00
+updated_at              | 2026-03-26 05:13:11.181819+00
+```
+
+4. [L3 参考実装チュートリアル 2-2-1. アクセストークン取得（事業者クライアントID認証）](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials.md#2-2-1-%E3%82%A2%E3%82%AF%E3%82%BB%E3%82%B9%E3%83%88%E3%83%BC%E3%82%AF%E3%83%B3%E5%8F%96%E5%BE%97%E4%BA%8B%E6%A5%AD%E8%80%85%E3%82%AF%E3%83%A9%E3%82%A4%E3%82%A2%E3%83%B3%E3%83%88id%E8%AA%8D%E8%A8%BC)を実行し、アクセストークンを取得します。宛先のホストには localhost:8080 を、`API-Key`は`API-Key-Sample`を指定してください。
 
 #### 利用料モデル登録（提供者）
 
@@ -507,9 +542,9 @@ $ curl -X POST \
     "provider_id": "'"$OPERATOR_ID"'",
     "consumer_id": "'"$OPERATOR_ID"'",
     "data_id": "'"I0101"'",
-    "payment_service_id": "550e8400-e29b-41d4-a716-446655440000",
+    "payment_service_id": "'"$PAYMENT_SERVICE_ID"'",
     "valid_from": "'$(date -Iseconds -u)'",
-    "is_active": "true",
+    "is_active": true,
     "version": 1
   }' \
   localhost:8001/api/v1/fee-model
@@ -519,23 +554,23 @@ $ curl -X POST \
 
 ```
 {
-  "created_at":"2026-02-24T07:41:47.426038Z",
-  "updated_at":"2026-02-24T07:41:47.426038Z",
-  "valid_from":"2026-02-24T07:41:47Z",
-  "is_active":true,
-  "version":1,
-  "storage_type":"provider_env",
-  "storage_key":"",
-  "valid_to":null,
-  "provider_id":"dc2233be-887d-470d-af6b-3d18779a2615",
-  "consumer_id":"dc2233be-887d-470d-af6b-3d18779a2615",
-  "data_id":"I0101",
-  "payment_service_id":"550e8400-e29b-41d4-a716-446655440000",
-  "fee_model_name":"通常モデル",
-  "price":"1000.00",
-  "tax_classification":"taxable",
-  "tax_rate":"0.1000",
-  "fee_model_id":"53c1ca1b-748e-441c-b34b-fd8f13fb34e8"
+  "created_at": "2026-03-26T04:58:12.754643Z",
+  "updated_at": "2026-03-26T04:58:12.754643Z",
+  "valid_from": "2026-03-26T04:58:12Z",
+  "is_active": true,
+  "version": 1,
+  "storage_type": "provider_env",
+  "storage_key": "",
+  "valid_to": null,
+  "provider_id": "e6393807-ff52-4985-bf15-7f9f98adf0b1",
+  "consumer_id": "e6393807-ff52-4985-bf15-7f9f98adf0b1",
+  "data_id": "I0101",
+  "payment_service_id": "e5a8e2ee-28cf-11f1-bd41-5847ca798141",
+  "fee_model_name": "通常モデル",
+  "price": "1000.00",
+  "tax_classification": "taxable",
+  "tax_rate": "0.1000",
+  "fee_model_id": "86b4794b-678e-46bb-a9ba-1c7c3e90fe87"
 }
 ```
 
@@ -558,23 +593,23 @@ $ curl -s \
 {
   "models": [
     {
-      "created_at": "2026-02-24T07:41:47.426038Z",
-      "updated_at": "2026-02-24T07:41:47.426038Z",
-      "valid_from": "2026-02-24T07:41:47Z",
+      "created_at": "2026-03-26T04:58:12.754643Z",
+      "updated_at": "2026-03-26T04:58:12.754643Z",
+      "valid_from": "2026-03-26T04:58:12Z",
       "is_active": true,
       "version": 1,
       "storage_type": "provider_env",
       "storage_key": "",
       "valid_to": null,
-      "provider_id": "dc2233be-887d-470d-af6b-3d18779a2615",
-      "consumer_id": "dc2233be-887d-470d-af6b-3d18779a2615",
+      "provider_id": "e6393807-ff52-4985-bf15-7f9f98adf0b1",
+      "consumer_id": "e6393807-ff52-4985-bf15-7f9f98adf0b1",
       "data_id": "I0101",
-      "payment_service_id": "550e8400-e29b-41d4-a716-446655440000",
+      "payment_service_id": "e5a8e2ee-28cf-11f1-bd41-5847ca798141",
       "fee_model_name": "通常モデル",
       "price": "1000.00",
       "tax_classification": "taxable",
       "tax_rate": "0.1000",
-      "fee_model_id": "53c1ca1b-748e-441c-b34b-fd8f13fb34e8"
+      "fee_model_id": "86b4794b-678e-46bb-a9ba-1c7c3e90fe87"
     }
   ]
 }
@@ -633,15 +668,15 @@ $ curl -X POST \
 {
   "payment_details": [
     {
-      "tracking_id": "93c19b42-1155-11f1-9c92-00155d72de61",
-      "fee_model_id": "53c1ca1b-748e-441c-b34b-fd8f13fb34e8",
-      "payment_service_id": "550e8400-e29b-41d4-a716-446655440000",
-      "provider_id": "dc2233be-887d-470d-af6b-3d18779a2615",
-      "consumer_id": "dc2233be-887d-470d-af6b-3d18779a2615",
+      "tracking_id": "a6c0c488-28d0-11f1-bd41-5847ca798141",
+      "fee_model_id": "86b4794b-678e-46bb-a9ba-1c7c3e90fe87",
+      "payment_service_id": "e5a8e2ee-28cf-11f1-bd41-5847ca798141",
+      "provider_id": "e6393807-ff52-4985-bf15-7f9f98adf0b1",
+      "consumer_id": "e6393807-ff52-4985-bf15-7f9f98adf0b1",
       "data_id_list": [
         "I0101"
       ],
-      "completed_at": "2026-02-24T07:51:57Z",
+      "completed_at": "2026-03-26T05:51:57Z",
       "amount": 1100.0,
       "tax_rate": 0.1
     }
@@ -674,15 +709,15 @@ $ curl -X POST \
 {
   "billing_details": [
     {
-      "tracking_id": "93c19b42-1155-11f1-9c92-00155d72de61",
-      "fee_model_id": "53c1ca1b-748e-441c-b34b-fd8f13fb34e8",
-      "payment_service_id": "550e8400-e29b-41d4-a716-446655440000",
-      "provider_id": "dc2233be-887d-470d-af6b-3d18779a2615",
-      "consumer_id": "dc2233be-887d-470d-af6b-3d18779a2615",
+      "tracking_id": "a6c0c488-28d0-11f1-bd41-5847ca798141",
+      "fee_model_id": "86b4794b-678e-46bb-a9ba-1c7c3e90fe87",
+      "payment_service_id": "e5a8e2ee-28cf-11f1-bd41-5847ca798141",
+      "provider_id": "e6393807-ff52-4985-bf15-7f9f98adf0b1",
+      "consumer_id": "e6393807-ff52-4985-bf15-7f9f98adf0b1",
       "data_id_list": [
         "I0101"
       ],
-      "completed_at": "2026-02-24T07:51:57Z",
+      "completed_at": "2026-03-26T05:51:57Z",
       "amount": 1100.0,
       "tax_rate": 0.1
     }
@@ -731,11 +766,11 @@ $ docker logs l3-app
 
 #### 精算・決済サービス
 
-精算・決済サービスはは標準出力および標準エラー出力にログを出力します。
+精算・決済サービスは標準出力および標準エラー出力にログを出力します。
 コンテナ上で実行している場合、以下のコマンドでログを確認できます。
 
 ```
-$ docker logs app
+$ docker logs payment-app
 ```
 
 ## ライセンス
