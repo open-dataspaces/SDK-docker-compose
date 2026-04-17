@@ -518,7 +518,8 @@ definition files in this repository, as well as the industry services
 integrated with them.
 
 1. Obtain an access token
-   Execute the procedure described in [L3 Reference Implementation Tutorial 2‑2‑1. Access Token Acquisition (Client Authentication)](https://github.com/open-dataspaces/L3-identity-component/blob/develop/docs/tutorials/tutorials_en.md#2-2-1-obtaining-an-access-token-operator-client-id-authentication)
+   Execute the procedure described in [L3 Reference Implementation Tutorial 2‑2‑1. Access Token Acquisition (Client Authentication)](https://github.com/open-dataspaces/L3-identity-component/blob/develop/docs/tutorials/tutorials_en.md#2-2-1-obtaining-an-access-token-operator-client-id-authentication) to obtain an access token.
+   Specify `localhost:8080` as the destination host and set `API-Key` to `API-Key-Sample`.
 
 2. Data access  
    Perform data access using the obtained access token.
@@ -592,11 +593,8 @@ L3_CLIENT_SECRET
 $ docker compose up payment-app -d
 ```
 
-3. Register a dummy payment service for verification purposes in advance,
-   along with the associated data provider and data consumer, in the database.
-
-   For simplicity, the same ID is used for both the data provider and the data consumer
-   in this example.
+3. Register a dummy payment service for verification purposes in advance, along with the associated data provider and data consumer, in the database.
+   For simplicity, the same ID is used for both the data provider and the data consumer in this example.
    Also, store the ID of the registered service in a variable for later use.
 
 ```
@@ -630,10 +628,9 @@ created_at              | 2026-03-26 05:13:11.181819+00
 updated_at              | 2026-03-26 05:13:11.181819+00
 ```
 
-4. Obtain an access token  
-
-   Execute [L3 Reference Implementation Tutorial 2‑2‑1. Access Token Acquisition (Client Authentication)](https://github.com/open-dataspaces/L3-identity-component/blob/develop/docs/tutorials/tutorials_en.md#2-2-1-obtain-access-token-operator-client-id-authentication)
-
+4. Obtain an access token
+   Execute [L3 Reference Implementation Tutorial 2‑2‑1. Access Token Acquisition (Client Authentication)](https://github.com/open-dataspaces/L3-identity-component/blob/develop/docs/tutorials/tutorials_en.md#2-2-1-obtain-access-token-operator-client-id-authentication) to obtain an access token.
+   Specify `localhost:8080` as the destination host and set `API-Key` to `API-Key-Sample`.
 
 #### Registering a Usage Fee Model (Provider)
 
@@ -880,7 +877,9 @@ The directory structure follows the storage hierarchy and is `pj-a-sbx/applogs`.
 ![Log Storage Location2](images/MinIO_pj-a-sbx_applogs.png)
 
 Since log files are stored under the `applogs` directory, you can download and
-extract them to review their content
+extract them to review their contents.
+
+![Log File List](images/MinIO_logfiles.png)
 
 #### L3: Identity Component
 

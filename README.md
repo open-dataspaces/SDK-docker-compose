@@ -17,7 +17,7 @@
 
 * [Web API転送モジュール](https://github.com/open-dataspaces/L2-dp-webapi): [v1.0.0](https://github.com/open-dataspaces/L2-dp-webapi/tree/v1.0.0)
 * [アイデンティティコンポーネント](https://github.com/open-dataspaces/L3-identity-component): [v1.0.0](https://github.com/open-dataspaces/L3-identity-component/tree/v1.0.0)
-* [精算・決済サービス](https://github.com/open-dataspaces/DCS-Payment): [v1.0.0](https://github.com/open-dataspaces/DCS-Payment/tree/v1.0.0)
+* [精算・課金／決済サービス](https://github.com/open-dataspaces/DCS-Payment): [v1.0.0](https://github.com/open-dataspaces/DCS-Payment/tree/v1.0.0)
 
 ## リポジトリ構成
 
@@ -30,7 +30,7 @@
 | l3                 | L3（アイデンティティレイヤ）のコンポーネントであるアイデンティティコンポーネントのデプロイ定義ファイル格納先 |
 | logging            | ロギングサービスのデプロイ定義ファイル格納先 |
 | mockserver         | 動作確認用のモックサーバのデプロイ定義ファイル格納先 |
-| payment            | 精算・決済サービスのデプロイ定義ファイル格納先 |
+| payment            | 精算・課金／決済サービスのデプロイ定義ファイル格納先 |
 | setup              | 構築手順を簡易化・自動化するためのスクリプト群 |
 
 ## 構築手順
@@ -128,7 +128,7 @@ $ docker compose up -d gateway
 $ docker compose -f l2/docker-compose.yml down
 ```
 
-#### 精算・決済サービス
+#### 精算・課金／決済サービス
 
 起動（事前にL3の起動が必要）
 
@@ -461,13 +461,13 @@ $ docker compose -f mockserver/docker-compose.yml up -d
     }
     ```
 
-### 精算・決済
+### 精算・課金／決済
 
-精算・決済サービスでは、データ提供者が登録した利用料モデルに従い、利用者と提供者の間で行われたデータ交換の履歴に基づいて両者への支払／請求額を計算し提示する機能と、外部サービスと連携して実際の決済を行う機能を提供します。取引の実績は利用者・提供者の双方から登録するとともに、Web API転送モジュールから収集したログ情報とも突合することで、正当性を担保します。詳細は[精算・決済サービスのドキュメント](https://github.com/open-dataspaces/DCS-Payment)を参照してください。
+精算・課金／決済サービスでは、データ提供者が登録した利用料モデルに従い、利用者と提供者の間で行われたデータ交換の履歴に基づいて両者への支払／請求額を計算し提示する機能と、外部サービスと連携して実際の決済を行う機能を提供します。取引の実績は利用者・提供者の双方から登録するとともに、Web API転送モジュールから収集したログ情報とも突合することで、正当性を担保します。詳細は[精算・課金／決済サービスのドキュメント](https://github.com/open-dataspaces/DCS-Payment)を参照してください。
 
 #### 準備
 
-1. 精算・決済データベースのマイグレーションを実行します。
+1. 精算・課金／決済データベースのマイグレーションを実行します。
 
 ```
 $ cd DCS-Payment
@@ -481,8 +481,8 @@ INFO  [alembic.runtime.migration] Running upgrade  -> 001_initial, Initial table
 $ cd -
 ```
 
-2. payment/docker-compose.yml 中の以下のパラメータに, l3/docker-compose.yml 中の `KEYCLOAK_CREDENTIALS_TOKEN_INTROSPECT_CLIENT_SECRET` と同じ値を設定し、精算・決済サービスを再起動して反映します。
-   なお、今回は説明を簡潔にするため、精算・決済サービスの認可機能を無効化しています。実運用システムでは、[精算・決済サービスのドキュメント](https://github.com/open-dataspaces/DCS-Payment)を参照の上、認可機能を適切に設定してください。
+2. payment/docker-compose.yml 中の以下のパラメータに, l3/docker-compose.yml 中の `KEYCLOAK_CREDENTIALS_TOKEN_INTROSPECT_CLIENT_SECRET` と同じ値を設定し、精算・課金／決済サービスを再起動して反映します。
+   なお、今回は説明を簡潔にするため、精算・課金／決済サービスの認可機能を無効化しています。実運用システムでは、[精算・課金／決済サービスのドキュメント](https://github.com/open-dataspaces/DCS-Payment)を参照の上、認可機能を適切に設定してください。
 
 ```
 L3_CLIENT_SECRET
@@ -532,7 +532,7 @@ updated_at              | 2026-03-26 05:13:11.181819+00
 #### 利用料モデル登録（提供者）
 
 今回は例として、利用者と提供者に同一のIDを使用します。
-以下のリクエストを送信し、精算・決済サービスに利用料モデルを登録します。
+以下のリクエストを送信し、精算・課金／決済サービスに利用料モデルを登録します。
 
 ```
 $ curl -X POST \
@@ -623,7 +623,7 @@ $ curl -s \
 
 #### データ交換状態登録（利用者・提供者）
 
-データ交換が終了したタイミングで、利用者・提供者の双方から取引の実績を精算・決済サービスに登録します。
+データ交換が終了したタイミングで、利用者・提供者の双方から取引の実績を精算・課金／決済サービスに登録します。
 対象となるデータ交換は、交換時に使用した `X-TrackingId` ヘッダ値で識別します。この例ではダミーの値を使用します。
 
 ```
@@ -770,9 +770,9 @@ L3は標準出力および標準エラー出力にログを出力します。
 $ docker logs l3-app
 ```
 
-#### 精算・決済サービス
+#### 精算・課金／決済サービス
 
-精算・決済サービスは標準出力および標準エラー出力にログを出力します。
+精算・課金／決済サービスは標準出力および標準エラー出力にログを出力します。
 コンテナ上で実行している場合、以下のコマンドでログを確認できます。
 
 ```
