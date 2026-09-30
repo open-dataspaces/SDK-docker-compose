@@ -1,0 +1,73 @@
+# L2Transactionログチェック CronJob Dockerfile
+
+# Build arguments
+ARG PYTHON_VERSION=3.13
+
+# Base image
+FROM python:${PYTHON_VERSION}-slim AS base
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Refresh certificate details
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends ca-certificates \
+ && update-ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+# Copy the SSL certificate into the container
+# COPY cert-file/cert.cer  /usr/local/share/ca-certificates/cert.crt
+
+# Install the updated certificate
+# RUN update-ca-certificates
+
+# Builder stage
+FROM base AS builder
+
+# Copy requirements (親ディレクトリのdocker/requirements.txtと追加パッケージ)
+COPY DCS-Payment/cronjob/docker/requirements.txt /tmp/base-requirements.txt
+
+# Upgrade build tools to fix known vulnerabilities
+RUN pip install --upgrade pip setuptools wheel
+
+# Install Python dependencies
+RUN pip install --user --no-warn-script-location -r /tmp/base-requirements.txt
+
+# Final stage
+FROM base AS final
+
+# Create non-root user
+RUN useradd -m -u 1000 appuser && \
+    chown -R appuser:appuser /app
+
+# Copy Python dependencies from builder
+COPY --from=builder --chown=appuser:appuser /root/.local /home/appuser/.local
+
+# Copy existing app module (サービス層を再利用するため)
+COPY --chown=appuser:appuser DCS-Payment/app/ /app/app/
+
+# Copy cronjob scripts
+# Copy cronjob scripts
+COPY --chown=appuser:appuser DCS-Payment/cronjob/src/check_l2log.py /app/
+
+# Create config directory (ConfigMapでマウントされる)
+RUN mkdir -p /app/config && chown appuser:appuser /app/config
+
+# Set PATH to include user's local bin
+ENV PATH=/home/appuser/.local/bin:$PATH
+
+# Switch to non-root user
+USER appuser
+
+# Run the cronjob
+CMD ["python", "/app/check_l2log.py"]
