@@ -19,9 +19,9 @@ services:
       - 24224:24224/udp
     networks:
       - shared-network-ods
-  minio:
-    image: quay.io/minio/minio
-    container_name: minio
+  silo:
+    image: docker.io/pgsty/silo:RELEASE.2026-09-16T00-00-00Z
+    container_name: silo
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -34,20 +34,20 @@ services:
     networks:
       - shared-network-ods
   # Init container: create the required MinIO bucket on startup
-  minio-init:
-    image: minio/mc
+  silo-init:
+    image: docker.io/pgsty/silo:RELEASE.2026-09-16T00-00-00Z
     depends_on:
-      - minio
+      - silo
     environment:
       <<: *minio-creds
     entrypoint: >
       /bin/sh -lc "
-      until mc alias set local http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; do
-        echo 'waiting for minio...'; sleep 2;
+      until mc alias set local http://silo:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; do
+        echo 'waiting for silo...'; sleep 2;
       done;
       mc mb -p local/pj-a-sbx;
       mc anonymous set none local/pj-a-sbx;
-      echo 'minio init done';
+      echo 'silo init done';
       "
     restart: "no"
     networks:

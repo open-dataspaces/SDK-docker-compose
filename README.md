@@ -182,7 +182,7 @@ $ docker compose up -d
  ✔ Volume "ods_pgdata"          Created                                                          0.0s
  ✔ Volume "ods_postgres_data"   Created                                                          0.0s
  ✔ Volume "ods_pgdata_openfga"  Created                                                          0.0s
- ✔ Container minio              Started                                                          1.0s
+ ✔ Container silo              Started                                                          1.0s
  ✔ Container postgres           Started                                                          1.1s
  ✔ Container fluentd            Started                                                          1.1s
  ✔ Container l3-app             Started                                                          1.0s
@@ -191,7 +191,7 @@ $ docker compose up -d
  ✔ Container payment-app        Started                                                         12.0s
  ✔ Container keycloak           Started                                                          1.7s
  ✔ Container openfga            Started                                                          1.6s
- ✔ Container ods-minio-init-1   Started                                                          1.4s
+ ✔ Container ods-silo-init-1   Started                                                          1.4s
  ✔ Container gateway            Started                                                          2.2s
 ```
 
@@ -747,7 +747,7 @@ L2が出力したログは、ロギングサービスによってオブジェク
 | ------------------ | ---- |
 | data/pj-a-sbx/applogs | ログファイルは1時間ごとにローテーションされる |
 
-こちらのログについては直接ディレクトリを参照する他に、MinIOのコンソールにアクセスすることでブラウザからも確認できます。
+こちらのログについては直接ディレクトリを参照する他に、Siloのコンソールにアクセスすることでブラウザからも確認できます。
 http://localhost:9001/login からアクセスしユーザ名とパスワードを入力します。
 
 ![ログイン画面](images/MinIO_login.png)
