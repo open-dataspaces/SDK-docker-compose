@@ -21,9 +21,6 @@ services:
       - VALID_API_KEYS_ENABLED=true
       - AUTHZEN_AUTHORIZATION_ENABLED=true
       - LOGLEVEL=DEBUG
-    depends_on:
-      - keycloak
-      - fluentd
     # Configure the logging driver to use fluentd
     logging:
       driver: "fluentd"
