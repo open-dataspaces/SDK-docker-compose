@@ -200,7 +200,7 @@ $ docker compose up -d
 #### L3: アイデンティティコンポーネント
 
 L3では、[サービス起動](https://github.com/open-dataspaces/L3-identity-component/tree/v1.0.0?tab=readme-ov-file#1-%E3%82%B5%E3%83%BC%E3%83%93%E3%82%B9%E8%B5%B7%E5%8B%95)および[参考実装チュートリアル](https://github.com/open-dataspaces/L3-identity-component/blob/v1.0.0/docs/tutorials/tutorials.md)に示す初期設定が必要です。
-本SDKでは、後者の「[2. ユーザ認証システム動作確認](https://github.com/open-dataspaces/L3-identity-component/blob/v1.0.0/docs/tutorials/tutorials.md#2-%E3%83%A6%E3%83%BC%E3%82%B6%E8%AA%8D%E8%A8%BC%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D)」までを一括で実施するスクリプトを提供しています。実行方法は以下の通りです。
+本手順書では参考実装チュートリアルの「[1-1. チュートリアルデータ投入](https://github.com/open-dataspaces/L3-identity-component/blob/v1.0.0/docs/tutorials/tutorials.md#1-1-%E3%83%81%E3%83%A5%E3%83%BC%E3%83%88%E3%83%AA%E3%82%A2%E3%83%AB%E3%83%87%E3%83%BC%E3%82%BF%E6%8A%95%E5%85%A5)」について、SDK版の設定を実施するスクリプトを提供しています。実行方法は以下の通りです。
 
 ```
 $ cd setup
@@ -208,9 +208,6 @@ $ bash setup_l3.sh
 $ cd -
 $ docker compose -f l3/docker-compose.yml up -d
 ```
-
-上記の手順で Keycloak に作成される2つのクライアントID（クライアントシステム認証およびユーザ当人認証）は、[2. ユーザ認証システム動作確認](https://github.com/open-dataspaces/L3-identity-component/blob/v1.0.0/docs/tutorials/tutorials.md#2-%E3%83%A6%E3%83%BC%E3%82%B6%E8%AA%8D%E8%A8%BC%E3%82%B7%E3%82%B9%E3%83%86%E3%83%A0%E5%8B%95%E4%BD%9C%E7%A2%BA%E8%AA%8D) で作成されるものと同一です。
-変更する場合は setup/setup_l3.sh を編集してください。
 
 次に以下のコマンドを実行することで、OpenFGA のストア及び認可モデルを作成し、その内容をL2のデプロイ定義ファイル (l2/docker-compose.yml) に反映します。
 
