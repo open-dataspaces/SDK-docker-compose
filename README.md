@@ -2,7 +2,7 @@
 
 ## 概要
 
-本リポジトリでは、Open Dataspaces（以下ODS）が提供する SDK for Onbording の一つとして、Docker Compose 用のデプロイ定義ファイルを公開します。
+本リポジトリでは、Open Dataspaces（以下ODS）が提供する SDK for Onboarding の一つとして、Docker Compose 用のデプロイ定義ファイルを公開します。
 これらの定義ファイルを使うことで、利用者は自身のローカル環境に ODS のコンポーネント群を容易に配備し、開発や動作確認に使用することができます。
 
 ## 前提条件
