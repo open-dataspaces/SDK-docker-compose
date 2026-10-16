@@ -6,7 +6,7 @@ include:
   - ./mockserver/docker-compose.yml
   - ./logging/docker-compose.yml
   - ./payment/docker-compose.yml
-  
+
 volumes:
   pgdata:
     driver: local
