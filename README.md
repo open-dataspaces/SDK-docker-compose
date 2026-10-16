@@ -485,7 +485,7 @@ $ docker build \
 ##### 事業者クライアント作成
 
 精算決済サービスの動作には、データ提供者とデータ利用者の二つの事業者クライアントが必要になります。[参考実装チュートリアル 2-1. 認証情報の作成（事業者情報/個人ユーザ/クライアントID）](https://github.com/open-dataspaces/L3-identity-component/blob/v1.0.0/docs/tutorials/tutorials.md#2-1-%E8%AA%8D%E8%A8%BC%E6%83%85%E5%A0%B1%E3%81%AE%E4%BD%9C%E6%88%90%E4%BA%8B%E6%A5%AD%E8%80%85%E6%83%85%E5%A0%B1%E5%80%8B%E4%BA%BA%E3%83%A6%E3%83%BC%E3%82%B6%E3%82%AF%E3%83%A9%E3%82%A4%E3%82%A2%E3%83%B3%E3%83%88id)に記載の事業者情報の登録から[2-1-5. 事業者クライアントシークレット取得](https://github.com/open-dataspaces/L3-identity-component/blob/v1.0.0/docs/tutorials/tutorials.md#2-1-5-%E4%BA%8B%E6%A5%AD%E8%80%85%E3%82%AF%E3%83%A9%E3%82%A4%E3%82%A2%E3%83%B3%E3%83%88%E3%82%B7%E3%83%BC%E3%82%AF%E3%83%AC%E3%83%83%E3%83%88%E5%8F%96%E5%BE%97)までを実行し、データ提供者とデータ利用者の事業者クライアントをそれぞれ作成してください。
-なお、ここで以降の処理では作成したデータ提供者、利用者のクライアントidはそれぞれ `PROVIDER_ID`, `CONSUMER_ID`として使用します。
+なお、以降の処理では作成したデータ提供者、利用者のクライアントIDはそれぞれ `PROVIDER_ID`, `CONSUMER_ID`として使用します。
 
 ##### 認可設定
 
@@ -525,7 +525,7 @@ $ curl -i -X POST http://localhost:8083/stores/$USER_STORE_ID/write \
 | `$USER_STORE_ID` | l2/docker-compose.yml 内の `FGA_STORE_ID` の設定値 |
 | `$USER_MODEL_ID` | l2/docker-compose.yml 内の `FGA_MODEL_ID` の設定値 |
 | `$PROVIDER_ID` | 事業者クライアント作成（上述）で発行されたデータ提供者の `operator_id` |
-| `$COMSUMER_ID` | 事業者クライアント作成（上述）で発行されたデータ利用者の `operator_id` |
+| `$CONSUMER_ID` | 事業者クライアント作成（上述）で発行されたデータ利用者の `operator_id` |
 
 ```
 $ curl -i -X POST http://localhost:8083/stores/$USER_STORE_ID/write \
@@ -608,18 +608,19 @@ INSERT 0 1
 $ docker exec -it payment-db psql fastapi_db -U postgres -c 'SELECT * FROM payment_services'
           payment_service_id          | payment_service_name | payment_service_url |          created_at           |          updated_at           
 --------------------------------------+----------------------+---------------------+-------------------------------+-------------------------------
- 742b9b34-7901-11f1-b3c8-00155d3ea7f5 | test_service         | http://example.com/ | 2026-07-06 06:24:53.613416+00 | 2026-07-06 06:24:53.613416+00
+ a116525e-c94e-11f1-8000-5847ca798141 | test_service         | http://example.com/ | 2026-10-16 12:45:03.322807+00 | 2026-10-16 12:45:03.322807+00
 (1 row)
 
-$ docker exec -it payment-db psql fastapi_db -U postgres -c "INSERT INTO payment_service_user_registrations VALUES ('$PROVIDER_ID', '$PAYMENT_SERVICE_ID', '$CONSUMER_ID', '$PROVIDER_ID')"
+$ PAYMENT_SERVICE_USER_ID=$(uuidgen -t)
+$ docker exec -it payment-db psql fastapi_db -U postgres -c "INSERT INTO payment_service_user_registrations (payment_service_user_id, payment_service_id, consumer_id, provider_id) VALUES ('$PAYMENT_SERVICE_USER_ID', '$PAYMENT_SERVICE_ID', '$CONSUMER_ID', '$PROVIDER_ID')"
 INSERT 0 1
 $ docker exec -it payment-db psql fastapi_db -U postgres -c '\x' -c 'SELECT * FROM payment_service_user_registrations'
 Expanded display is on.
 -[ RECORD 1 ]-----------+-------------------------------------
-payment_service_user_id | bb20ce94-911e-4215-ad03-16b9dcc5784c
-payment_service_id      | 742b9b34-7901-11f1-b3c8-00155d3ea7f5
-consumer_id             | 99183994-9a21-42ec-8a49-5f4407038a5e
-provider_id             | bb20ce94-911e-4215-ad03-16b9dcc5784c
+payment_service_user_id | 7ea201bc-c950-11f1-8000-5847ca798141
+payment_service_id      | a116525e-c94e-11f1-8000-5847ca798141
+consumer_id             | dd6abc7c-9544-4d5e-b91e-ef4083180c35
+provider_id             | 21e1e373-4f8e-427f-9659-573c47b036f5
 company_name            | 
 department              | 
 customer_name           | 
@@ -628,8 +629,8 @@ address                 |
 tel_no                  | 
 external_buyer_id       | 
 external_data           | 
-created_at              | 2026-07-06 06:25:55.623816+00
-updated_at              | 2026-07-06 06:25:55.623816+00
+created_at              | 2026-10-16 12:58:26.025228+00
+updated_at              | 2026-10-16 12:58:26.025228+00
 ```
 
 4. [L3 参考実装チュートリアル 2-2-1. アクセストークン取得（事業者クライアントID認証）](https://github.com/open-dataspaces/L3-identity-component/blob/v1.0.0/docs/tutorials/tutorials.md#2-2-1-%E3%82%A2%E3%82%AF%E3%82%BB%E3%82%B9%E3%83%88%E3%83%BC%E3%82%AF%E3%83%B3%E5%8F%96%E5%BE%97%E4%BA%8B%E6%A5%AD%E8%80%85%E3%82%AF%E3%83%A9%E3%82%A4%E3%82%A2%E3%83%B3%E3%83%88id%E8%AA%8D%E8%A8%BC)を実行し、アクセストークンを取得します。宛先のホストには localhost:8080 を、`API-Key`は`API-Key-Sample`を指定してください。以降の処理ではデータ提供者のアクセストークンを `PROVIDER_ACCESS_TOKEN`, データ利用者のアクセストークンを`CONSUMER_ACCESS_TOKEN` とします。
@@ -666,21 +667,23 @@ $ curl -X POST \
 
 ```
 {
-  "created_at":"2026-07-06T06:25:57.065456Z",
-  "updated_at":"2026-07-06T06:25:57.065456Z",
-  "valid_from":"2026-07-01T00:00:00Z",
-  "is_active":true,
-  "version":1,
-  "storage_type":"provider_env",
-  "storage_key":"","valid_to":null,
-  "provider_id":"bb20ce94-911e-4215-ad03-16b9dcc5784c","consumer_id":"99183994-9a21-42ec-8a49-5f4407038a5e",
-  "data_id":"I0101",
-  "payment_service_id":"742b9b34-7901-11f1-b3c8-00155d3ea7f5",
-  "fee_model_name":"通常モデル",
-  "price":"1000.00",
-  "tax_classification":"taxable",
-  "tax_rate":"0.1000",
-  "fee_model_id":"e819cad0-959a-4ebf-8455-cbadc24732e4"
+  "created_at": "2026-10-16T13:05:02.430355Z",
+  "updated_at": "2026-10-16T13:05:02.430355Z",
+  "valid_from": "2026-07-01T00:00:00Z",
+  "is_active": true,
+  "version": 1,
+  "storage_type": "provider_env",
+  "storage_key": "",
+  "valid_to": null,
+  "provider_id": "21e1e373-4f8e-427f-9659-573c47b036f5",
+  "consumer_id": "dd6abc7c-9544-4d5e-b91e-ef4083180c35",
+  "data_id": "I0101",
+  "payment_service_id": "a116525e-c94e-11f1-8000-5847ca798141",
+  "fee_model_name": "通常モデル",
+  "price": "1000.00",
+  "tax_classification": "taxable",
+  "tax_rate": "0.1000",
+  "fee_model_id": "103a6ccf-532a-4d2b-988e-7fe9881c0abc"
 }
 ```
 
@@ -701,27 +704,27 @@ $ curl -s \
 
 ```
 {
-  "models":[
-      {
-        "created_at":"2026-07-06T06:25:57.065456Z",
-        "updated_at":"2026-07-06T06:25:57.065456Z",
-        "valid_from":"2026-07-01T00:00:00Z",
-        "is_active":true,
-        "version":1,
-        "storage_type":"provider_env",
-        "storage_key":"",
-        "valid_to":null,
-        "provider_id":"bb20ce94-911e-4215-ad03-16b9dcc5784c",
-        "consumer_id":"99183994-9a21-42ec-8a49-5f4407038a5e",
-        "data_id":"I0101",
-        "payment_service_id":"742b9b34-7901-11f1-b3c8-00155d3ea7f5",
-        "fee_model_name":"通常モデル",
-        "price":"1000.00",
-        "tax_classification":"taxable",
-        "tax_rate":"0.1000",
-        "fee_model_id":"e819cad0-959a-4ebf-8455-cbadc24732e4"
-      }
-    ]
+  "models": [
+    {
+      "created_at": "2026-10-16T13:05:02.430355Z",
+      "updated_at": "2026-10-16T13:05:02.430355Z",
+      "valid_from": "2026-07-01T00:00:00Z",
+      "is_active": true,
+      "version": 1,
+      "storage_type": "provider_env",
+      "storage_key": "",
+      "valid_to": null,
+      "provider_id": "21e1e373-4f8e-427f-9659-573c47b036f5",
+      "consumer_id": "dd6abc7c-9544-4d5e-b91e-ef4083180c35",
+      "data_id": "I0101",
+      "payment_service_id": "a116525e-c94e-11f1-8000-5847ca798141",
+      "fee_model_name": "通常モデル",
+      "price": "1000.00",
+      "tax_classification": "taxable",
+      "tax_rate": "0.1000",
+      "fee_model_id": "103a6ccf-532a-4d2b-988e-7fe9881c0abc"
+    }
+  ]
 }
 ```
 
@@ -736,7 +739,7 @@ $ export TRACKING_ID=$(uuidgen -t)
 $ curl -X GET "http://localhost:8090/test" \
   -H 'api-key: 2dfd3409-ce01-4451-96fa-7e10c9681422y' \
   -H "Authorization: Bearer $CONSUMER_ACCESS_TOKEN" \
-  -H "X-TrackingID: $TRACKING_ID" \
+  -H "X-TrackingId: $TRACKING_ID" \
   -H 'X-ODS-UserId: 112233' \
   -H "Prefer: return=representation"
 ```
@@ -804,7 +807,7 @@ $ curl -X POST \
 登録に成功すると、以下のレスポンスが返却されます。
 
 ```
-{"status":"success","detail":"Data exchange completed for tracking_id: 75fdadfa-7909-11f1-b3c8-00155d3ea7f5"}
+{"status":"success","detail":"Data exchange completed for tracking_id: cfa22276-c951-11f1-8000-5847ca798141"}
 ```
 
 ##### L2Transactionチェック
@@ -818,6 +821,7 @@ $ docker compose restart fluentd
 
 本番環境では、整合性チェックは cron などで定期実行してください。
 本SDKではS3互換のSiloに対してL2Transactionチェックを一度実行する例を示します。
+なお、コマンド中の環境変数 `AWS_ACCESS_KEY_ID` および `AWS_SECRET_ACCESS_KEY` には、logging/.env 中の `MINIO_ROOT_USER` および `MINIO_ROOT_PASSWORD` と同じ値を指定してください。
 
 ```
 $ docker run --rm \
@@ -839,66 +843,53 @@ $ docker run --rm \
 実行が完了すると以下のように表示されます。
 
 ```
-2026-07-06T07:53:09+0000 [INFO] === CronJob 開始 ===
-2026-07-06T07:53:09+0000 [INFO] 対象バケット: pj-a-sbx / プレフィックス: applogs/
-2026-07-06T07:53:09+0000 [INFO] 対象日付: 2026-07-05, 2026-07-06 (JST)
-2026-07-06T07:53:09+0000 [INFO] DB から tracking_id を取得中 (2026-07-05 〜 2026-07-06)
-2026-07-06T07:53:09+0000 [INFO] DB から 1 件の tracking_id を取得
-2026-07-06T07:53:09+0000 [DEBUG] DB 接続クローズ
-2026-07-06T07:53:10+0000 [INFO] --- 日付: 20260705 の処理を開始 (prefix=applogs/20260705) ---
-2026-07-06T07:53:10+0000 [DEBUG] list_objects_v2 呼び出し: {'Bucket': 'pj-a-sbx', 'Prefix': 'applogs/20260705'}
-2026-07-06T07:53:10+0000 [DEBUG] list_objects_v2 レスポンス: KeyCount=0, IsTruncated=False
-2026-07-06T07:53:10+0000 [DEBUG] 該当オブジェクトなし
-2026-07-06T07:53:10+0000 [INFO] 日付 20260705 完了: 0 ファイル処理
-2026-07-06T07:53:10+0000 [INFO] --- 日付: 20260706 の処理を開始 (prefix=applogs/20260706) ---
-2026-07-06T07:53:10+0000 [DEBUG] list_objects_v2 呼び出し: {'Bucket': 'pj-a-sbx', 'Prefix': 'applogs/20260706'}
-2026-07-06T07:53:10+0000 [DEBUG] list_objects_v2 レスポンス: KeyCount=9, IsTruncated=False
-2026-07-06T07:53:10+0000 [INFO] [ファイル 1] 取得開始: applogs/20260706-02_0.gz (size=75131 bytes)
-2026-07-06T07:53:10+0000 [INFO] [ファイル 1] 処理完了: applogs/20260706-02_0.gz (4279 行)
-2026-07-06T07:53:10+0000 [INFO] [ファイル 2] 取得開始: applogs/20260706-03_0.gz (size=5796 bytes)
-2026-07-06T07:53:10+0000 [INFO] [ファイル 2] 処理完了: applogs/20260706-03_0.gz (453 行)
-2026-07-06T07:53:10+0000 [INFO] [ファイル 3] 取得開始: applogs/20260706-04_0.gz (size=4897 bytes)
-2026-07-06T07:53:10+0000 [INFO] [ファイル 3] 処理完了: applogs/20260706-04_0.gz (363 行)
-2026-07-06T07:53:10+0000 [INFO] [ファイル 4] 取得開始: applogs/20260706-05_0.gz (size=7783 bytes)
-2026-07-06T07:53:10+0000 [INFO] [ファイル 4] 処理完了: applogs/20260706-05_0.gz (639 行)
-2026-07-06T07:53:10+0000 [INFO] [ファイル 5] 取得開始: applogs/20260706-06_0.gz (size=16130 bytes)
-2026-07-06T07:53:10+0000 [INFO] [ファイル 5] 処理完了: applogs/20260706-06_0.gz (865 行)
-2026-07-06T07:53:10+0000 [INFO] [ファイル 6] 取得開始: applogs/20260706-07_0.gz (size=27334 bytes)
-2026-07-06T07:53:10+0000 [INFO] [ファイル 6] 処理完了: applogs/20260706-07_0.gz (1001 行)
-2026-07-06T07:53:10+0000 [INFO] [ファイル 7] 取得開始: applogs/20260706-07_1.gz (size=2286 bytes)
-2026-07-06T07:53:10+0000 [INFO] [ファイル 7] 処理完了: applogs/20260706-07_1.gz (142 行)
-2026-07-06T07:53:10+0000 [INFO] [ファイル 8] 取得開始: applogs/20260706-07_2.gz (size=474 bytes)
-2026-07-06T07:53:10+0000 [INFO] [ファイル 8] 処理完了: applogs/20260706-07_2.gz (6 行)
-2026-07-06T07:53:10+0000 [INFO] [ファイル 9] 取得開始: applogs/20260706-07_3.gz (size=7033 bytes)
-2026-07-06T07:53:10+0000 [INFO] [ファイル 9] 処理完了: applogs/20260706-07_3.gz (99 行)
-2026-07-06T07:53:10+0000 [INFO] 日付 20260706 完了: 9 ファイル処理
-2026-07-06T07:53:10+0000 [INFO] S3 ログ取得完了: 合計 9 ファイル / 7847 行
-2026-07-06T07:53:10+0000 [INFO] === tracking_id 照合開始 (1 件) ===
-2026-07-06T07:53:10+0000 [DEBUG] gatewayResponse 検出: trackingId=75fdadfa-7909-11f1-b3c8-00155d3ea7f5, statusCode=200
-2026-07-06T07:53:10+0000 [INFO] gatewayResponse パース完了: 1 件の trackingId → statusCode マッピングを取得
-2026-07-06T07:53:10+0000 [INFO] 照合結果: ログに存在=1 件, 存在しない=0 件
-2026-07-06T07:53:10+0000 [INFO]   statusCode=200: 1 件
-2026-07-06T07:53:10+0000 [INFO] 全ての tracking_id がログに存在します
-2026-07-06T07:53:10+0000 [INFO] l2_http_status='200' に更新: 1 件 (tracking_id 1 件)
-2026-07-06T07:53:10+0000 [INFO] l2_http_status の更新完了
-2026-07-06T07:53:10+0000 [DEBUG] DB 接続クローズ
-2026-07-06T07:53:10+0000 [INFO]   tracking_id 総数: 1
-2026-07-06T07:53:10+0000 [INFO]   ログに存在:       1
-2026-07-06T07:53:10+0000 [INFO]   ログに未検出:     0
-2026-07-06T07:53:10+0000 [INFO] === settlement_status 更新処理 開始 ===
-2026-07-06T07:53:10+0000 [INFO] settlement_status を 'settled' に更新: 1 件
-2026-07-06T07:53:10+0000 [INFO] settlement_status の更新完了
-2026-07-06T07:53:10+0000 [DEBUG] DB 接続クローズ
-2026-07-06T07:53:10+0000 [INFO] === 請求確定/キャンセル処理 開始 ===
-2026-07-06T07:53:10+0000 [INFO] === transactionレコード ステータス一覧 (最新50件) ===
-2026-07-06T07:53:10+0000 [INFO] 請求確定依頼対象: なし
-2026-07-06T07:53:10+0000 [INFO] 取引キャンセル対象（L2ステータス異常）: なし
-2026-07-06T07:53:10+0000 [DEBUG] DB 接続クローズ
-2026-07-06T07:53:10+0000 [INFO] tracking_id=NULL の未完了レコードを取得中
-2026-07-06T07:53:10+0000 [INFO] tracking_id=NULL の未完了レコード: 0 件
-2026-07-06T07:53:10+0000 [DEBUG] DB 接続クローズ
-2026-07-06T07:53:10+0000 [INFO] 取引キャンセル対象（24時間経過・未完了）: なし
-2026-07-06T07:53:10+0000 [INFO] === 請求確定/キャンセル処理 完了 ===
+2026-10-16T13:08:39+0000 [INFO] === CronJob 開始 ===
+2026-10-16T13:08:39+0000 [INFO] 対象バケット: pj-a-sbx / プレフィックス: applogs/
+2026-10-16T13:08:39+0000 [INFO] 対象日付: 2026-10-15, 2026-10-16 (JST)
+2026-10-16T13:08:39+0000 [INFO] DB から tracking_id を取得中 (2026-10-15 〜 2026-10-16)
+2026-10-16T13:08:39+0000 [INFO] DB から 1 件の tracking_id を取得
+2026-10-16T13:08:39+0000 [DEBUG] DB 接続クローズ
+2026-10-16T13:08:39+0000 [INFO] --- 日付: 20261015 の処理を開始 (prefix=applogs/20261015) ---
+2026-10-16T13:08:39+0000 [DEBUG] list_objects_v2 呼び出し: {'Bucket': 'pj-a-sbx', 'Prefix': 'applogs/20261015'}
+2026-10-16T13:08:39+0000 [DEBUG] list_objects_v2 レスポンス: KeyCount=0, IsTruncated=False
+2026-10-16T13:08:39+0000 [DEBUG] 該当オブジェクトなし
+2026-10-16T13:08:39+0000 [INFO] 日付 20261015 完了: 0 ファイル処理
+2026-10-16T13:08:39+0000 [INFO] --- 日付: 20261016 の処理を開始 (prefix=applogs/20261016) ---
+2026-10-16T13:08:39+0000 [DEBUG] list_objects_v2 呼び出し: {'Bucket': 'pj-a-sbx', 'Prefix': 'applogs/20261016'}
+2026-10-16T13:08:39+0000 [DEBUG] list_objects_v2 レスポンス: KeyCount=2, IsTruncated=False
+2026-10-16T13:08:39+0000 [INFO] [ファイル 1] 取得開始: applogs/20261016-12_0.gz (size=256030 bytes)
+2026-10-16T13:08:39+0000 [INFO] [ファイル 1] 処理完了: applogs/20261016-12_0.gz (11209 行)
+2026-10-16T13:08:39+0000 [INFO] [ファイル 2] 取得開始: applogs/20261016-13_0.gz (size=9187 bytes)
+2026-10-16T13:08:39+0000 [INFO] [ファイル 2] 処理完了: applogs/20261016-13_0.gz (207 行)
+2026-10-16T13:08:39+0000 [INFO] 日付 20261016 完了: 2 ファイル処理
+2026-10-16T13:08:39+0000 [INFO] S3 ログ取得完了: 合計 2 ファイル / 11416 行
+2026-10-16T13:08:39+0000 [INFO] === tracking_id 照合開始 (1 件) ===
+2026-10-16T13:08:39+0000 [DEBUG] gatewayResponse 検出: trackingId=9b07808f-46bf-4859-bf69-eac990e598f3, statusCode=200
+2026-10-16T13:08:39+0000 [DEBUG] gatewayResponse 検出: trackingId=cfa22276-c951-11f1-8000-5847ca798141, statusCode=200
+2026-10-16T13:08:39+0000 [INFO] gatewayResponse パース完了: 2 件の trackingId → statusCode マッピングを取得
+2026-10-16T13:08:39+0000 [INFO] 照合結果: ログに存在=1 件, 存在しない=0 件
+2026-10-16T13:08:39+0000 [INFO]   statusCode=200: 1 件
+2026-10-16T13:08:39+0000 [INFO] 全ての tracking_id がログに存在します
+2026-10-16T13:08:40+0000 [INFO] l2_http_status='200' に更新: 1 件 (tracking_id 1 件)
+2026-10-16T13:08:40+0000 [INFO] l2_http_status の更新完了
+2026-10-16T13:08:40+0000 [DEBUG] DB 接続クローズ
+2026-10-16T13:08:40+0000 [INFO]   tracking_id 総数: 1
+2026-10-16T13:08:40+0000 [INFO]   ログに存在:       1
+2026-10-16T13:08:40+0000 [INFO]   ログに未検出:     0
+2026-10-16T13:08:40+0000 [INFO] === settlement_status 更新処理 開始 ===
+2026-10-16T13:08:40+0000 [INFO] settlement_status を 'settled' に更新: 1 件
+2026-10-16T13:08:40+0000 [INFO] settlement_status の更新完了
+2026-10-16T13:08:40+0000 [DEBUG] DB 接続クローズ
+2026-10-16T13:08:40+0000 [INFO] === 請求確定/キャンセル処理 開始 ===
+2026-10-16T13:08:40+0000 [INFO] === transactionレコード ステータス一覧 (最新50件) ===
+2026-10-16T13:08:40+0000 [INFO] 請求確定依頼対象: なし
+2026-10-16T13:08:40+0000 [INFO] 取引キャンセル対象（L2ステータス異常）: なし
+2026-10-16T13:08:40+0000 [DEBUG] DB 接続クローズ
+2026-10-16T13:08:40+0000 [INFO] tracking_id=NULL の未完了レコードを取得中
+2026-10-16T13:08:40+0000 [INFO] tracking_id=NULL の未完了レコード: 0 件
+2026-10-16T13:08:40+0000 [DEBUG] DB 接続クローズ
+2026-10-16T13:08:40+0000 [INFO] 取引キャンセル対象（24時間経過・未完了）: なし
+2026-10-16T13:08:40+0000 [INFO] === 請求確定/キャンセル処理 完了 ===
 ```
 
 L2Transactionチェックは、保存済みの各ログレコードに対して `textPayload` フィールドを参照し、その中に含まれる `gatewayResponse` の `trackingId` および `statusCode` を抽出して精算決済の整合性確認を行います。
@@ -929,19 +920,20 @@ $ curl -X POST \
 
 ```
 {
-  "payment_details":[
+  "payment_details": [
     {
-      "tracking_id":"75fdadfa-7909-11f1-b3c8-00155d3ea7f5",
-      "fee_model_id":"e819cad0-959a-4ebf-8455-cbadc24732e4",
-      "payment_service_id":null,
-      "provider_id":"bb20ce94-911e-4215-ad03-16b9dcc5784c",
-      "consumer_id":"99183994-9a21-42ec-8a49-5f4407038a5e",
-      "data_id_list":["I0101"],
-      "completed_at":"2026-07-06T07:20:07Z",
-      "amount":1100.0,
-      "tax_rate":0.1  }
-      ],
-  "total_amount":1100.0
+      "tracking_id": "cfa22276-c951-11f1-8000-5847ca798141",
+      "fee_model_id": "103a6ccf-532a-4d2b-988e-7fe9881c0abc",
+      "payment_service_id": "a116525e-c94e-11f1-8000-5847ca798141",
+      "provider_id": "21e1e373-4f8e-427f-9659-573c47b036f5",
+      "consumer_id": "dd6abc7c-9544-4d5e-b91e-ef4083180c35",
+      "data_id_list": ["I0101"],
+      "completed_at": "2026-10-16T13:07:58Z",
+      "amount": 1100.0,
+      "tax_rate": 0.1
+    }
+  ],
+  "total_amount": 1100.0
 }
 ```
 
@@ -969,23 +961,24 @@ $ curl -X POST \
 
 ```
 {
-  "billing_details":[
+  "billing_details": [
     {
-      "tracking_id":"75fdadfa-7909-11f1-b3c8-00155d3ea7f5",
-      "fee_model_id":"e819cad0-959a-4ebf-8455-cbadc24732e4"
-      ,"payment_service_id":null,
-      "provider_id":"bb20ce94-911e-4215-ad03-16b9dcc5784c",
-      "consumer_id":"99183994-9a21-42ec-8a49-5f4407038a5e",
-      "data_id_list":["I0101"],
-      "completed_at":"2026-07-06T07:20:07Z",
-      "amount":1100.0,"tax_rate":0.1
-      }
-    ],
-  "total_amount":1100.0
+      "tracking_id": "cfa22276-c951-11f1-8000-5847ca798141",
+      "fee_model_id": "103a6ccf-532a-4d2b-988e-7fe9881c0abc",
+      "payment_service_id": "a116525e-c94e-11f1-8000-5847ca798141",
+      "provider_id": "21e1e373-4f8e-427f-9659-573c47b036f5",
+      "consumer_id": "dd6abc7c-9544-4d5e-b91e-ef4083180c35",
+      "data_id_list": ["I0101"],
+      "completed_at": "2026-10-16T13:07:58Z",
+      "amount": 1100.0,
+      "tax_rate": 0.1
+    }
+  ],
+  "total_amount": 1100.0
 }
 ```
 
-##### 決裁状態取得（提供者）
+##### 決済状態取得（提供者）
 
 提供者は以下のリクエストで、現在の決済状態を確認できます。
 
@@ -1010,30 +1003,30 @@ $ curl -X POST \
 
 ```
 {
-  "transactions":[
+  "transactions": [
     {
-      "transaction_id":"c9fc5e00-d38f-4f1f-a4a9-7bb272cfc52f",
-      "tracking_id":"75fdadfa-7909-11f1-b3c8-00155d3ea7f5",
-      "external_transaction_id":null,
-      "provider_id":"bb20ce94-911e-4215-ad03-16b9dcc5784c",
-      "consumer_id":"99183994-9a21-42ec-8a49-5f4407038a5e",
-      "data_id":"I0101",
-      "snapshot_price":"1000.00",
-      "snapshot_tax_rate":"0.1000",
-      "snapshot_tax_classification":"taxable",
-      "calculated_amount":"1100.00",
-      "consumer_exchange_status":"completed",
-      "provider_exchange_status":"completed",
-      "l2_http_status":"200",
-      "order_details":null,
-      "request_date":null,
-      "payment_deadline":null,
-      "paid_at":null,
-      "created_at":"2026-07-06T07:20:07Z",
-      "updated_at":"2026-07-06T07:53:10.408875Z"
+      "transaction_id": "26b70fbd-2b54-4e6d-aa95-afebac588d90",
+      "tracking_id": "cfa22276-c951-11f1-8000-5847ca798141",
+      "external_transaction_id": null,
+      "provider_id": "21e1e373-4f8e-427f-9659-573c47b036f5",
+      "consumer_id": "dd6abc7c-9544-4d5e-b91e-ef4083180c35",
+      "data_id": "I0101",
+      "snapshot_price": "1000.00",
+      "snapshot_tax_rate": "0.1000",
+      "snapshot_tax_classification": "taxable",
+      "calculated_amount": "1100.00",
+      "consumer_exchange_status": "completed",
+      "provider_exchange_status": "completed",
+      "l2_http_status": "200",
+      "order_details": null,
+      "request_date": null,
+      "payment_deadline": null,
+      "paid_at": null,
+      "created_at": "2026-10-16T13:07:58Z",
+      "updated_at": "2026-10-16T13:08:40.014402Z"
     }
   ],
-  "total_count":1
+  "total_count": 1
 }
 ```
 
