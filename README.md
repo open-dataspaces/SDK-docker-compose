@@ -361,7 +361,7 @@ $ docker compose up -d gateway
 ```
 $ curl -X POST\
     -H "Content-Type: application/json"\
-    -H "X-API-KEY: your-secret-management-api-key"\
+    -H "X-API-Key: your-secret-management-api-key"\
     -d '{
     "id": "route01",
     "uri": "http://mockoon:4011/test",
@@ -448,7 +448,7 @@ $ docker compose -f mockserver/docker-compose.yml up -d
 
     ```
     $ curl -X POST "http://localhost:8090/test" \
-      -H 'api-key: 2dfd3409-ce01-4451-96fa-7e10c9681422y' \
+      -H 'API-Key: 2dfd3409-ce01-4451-96fa-7e10c9681422y' \
       -H "Authorization: Bearer $ACCESS_TOKEN" \
       -H 'X-ODS-UserId: 112233' \
       -H "Content-Type: application/json" \
@@ -549,7 +549,7 @@ $ curl -i -X POST http://localhost:8083/stores/$USER_STORE_ID/write \
 ```
 $ curl -X POST\
     -H "Content-Type: application/json"\
-    -H "X-API-KEY: your-secret-management-api-key"\
+    -H "X-API-Key: your-secret-management-api-key"\
     -d '{
     "id": "route02",
     "uri": "http://mockoon:4011/test",
@@ -737,7 +737,7 @@ $ curl -s \
 ```
 $ export TRACKING_ID=$(uuidgen -t)
 $ curl -X GET "http://localhost:8090/test" \
-  -H 'api-key: 2dfd3409-ce01-4451-96fa-7e10c9681422y' \
+  -H 'API-Key: 2dfd3409-ce01-4451-96fa-7e10c9681422y' \
   -H "Authorization: Bearer $CONSUMER_ACCESS_TOKEN" \
   -H "X-TrackingId: $TRACKING_ID" \
   -H 'X-ODS-UserId: 112233' \
