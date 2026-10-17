@@ -73,7 +73,7 @@ services:
       # ===========================================
       # Configuration for the external payment service
       # ===========================================
-      EXTERNAL_PAYMENT_ENABLED: "true"
+      EXTERNAL_PAYMENT_ENABLED: "false"
       # EXTERNAL_PAYMENT_BASE_URL: ${EXTERNAL_PAYMENT_BASE_URL:-http://np-kakebarai-mock-api:8000}
 
       # ===========================================
