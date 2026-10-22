@@ -119,7 +119,7 @@ $ docker compose -f logging/docker-compose.yml down
 起動（事前にL3, ロギングの起動が必要）
 
 ```
-$ docker compose up -d gateway 
+$ docker compose -f l2/docker-compose.yml up -d
 ```
 
 停止
@@ -352,7 +352,7 @@ FGA_MODEL_ID=
 以下のコマンドでL2を再起動し、設定の変更を適用します。
 
 ```
-$ docker compose up -d gateway 
+$ docker compose -f l2/docker-compose.yml up -d
 ```
 
 次に、インダストリサービスにリクエストを転送するための、ルートの設定を行います。
