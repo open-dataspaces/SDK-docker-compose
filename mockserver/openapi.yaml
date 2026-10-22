@@ -43,3 +43,36 @@ paths:
                 type: string
                 default: "Request successfully delivered!"
               example: "Request successfully delivered!"
+    get:
+      summary: Confirm request reception
+      description: Returns a confirmation message for any GET request.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              description: Arbitrary JSON payload.
+          text/plain:
+            schema:
+              type: string
+              description: Arbitrary text payload.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    default: "Request successfully delivered!"
+              example:
+                message: "Request successfully delivered!"
+            text/plain:
+              schema:
+                type: string
+                default: "Request successfully delivered!"
+              example: "Request successfully delivered!"
