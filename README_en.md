@@ -32,7 +32,7 @@ The directory structure of this repository is as follows:
 | l2 | Directory containing deployment definition files for the Web API Transfer Module, which is a component of L2 (Transaction Layer) |
 | l3 | Directory containing deployment definition files for the Identity Component, which is a component of L3 (Identity Layer) |
 | logging | Directory containing deployment definition files for the logging service |
-| mockserver | Deployment definition files for the mock server used for verification and testing (corresponding to the Industry Service in the System Architecture diagram) |
+| mockserver | Deployment definition files for the mock server used for verification and testing (corresponding to the Industry Service in [the System Architecture diagram](#system-architecture-diagram)) |
 | payment | Deployment definition files for the Clearing and Billing/Payment Service |
 | setup | Collection of scripts to simplify and automate the setup procedure |
 
@@ -48,17 +48,17 @@ block
   columns 3
 
   block:a:1
-  columns 1
-  AuthN_DB["RDBMS for Authentication System"]
-  space
-  AuthN_SV["Authentication System"]
+    columns 1
+    AuthN_DB["RDBMS for Authentication System"]
+    space
+    AuthN_SV["Authentication System"]
   end
 
   block:b:1
-  columns 1
-  AuthZ_DB["RDBMS for Authorization System"]
-  space
-  AuthZ_SV["ReBAC Authorization System"]
+    columns 1
+    AuthZ_DB["RDBMS for Authorization System"]
+    space
+    AuthZ_SV["ReBAC Authorization System"]
   end
 
   space
@@ -75,10 +75,10 @@ block
 AuthN_SV -- "Stored data reference / update" --> AuthN_DB
 AuthZ_SV -- "Stored data reference / update" --> AuthZ_DB
 L3 -- "Authentication request" --> AuthN_SV
-L3 -- "Authorization request"--> AuthZ_SV
-L2 -- "Authentication token verification request"--> L3
-L2 -- "Authorization request"--> AuthZ_SV
-L2 -- "Request forwarding"--> IS
+L3 -- "Authorization request" --> AuthZ_SV
+L2 -- "Authentication token verification request" --> L3
+L2 -- "Authorization request" --> AuthZ_SV
+L2 -- "Request forwarding" --> IS
 ```
 
 In this SDK, PostgreSQL is used as the RDBMS, Keycloak is used as the Authentication System,
@@ -168,7 +168,7 @@ The following four files require these changes.
 
 The initial setup procedures for each component are described below.
 
-First, copy the L2, L3, and Clearing and Payment services from their respective official repositories.
+First, copy the L2, L3, and Clearing and Billing/Payment services from their respective official repositories.
 
 ```
 $ git clone --branch=v1.0.0 --depth=1 https://github.com/open-dataspaces/L2-dp-webapi.git
@@ -226,7 +226,7 @@ This script creates and configures Keycloak realms, clients for API authorizatio
 
 If you need to change these settings, edit `setup/setup_l3.sh` before executing the script.
 
-In addition, the business operator client IDs should be created as described later in "Data Configuration Required for Starting Operation".
+In addition, the business operator client IDs should be created as described later in "[Data Configuration Required for Starting Operation](#data-configuration-required-for-starting-operation)".
 
 Next, execute the following commands to create the OpenFGA store and authorization model,
 and reflect their contents in the L2 deployment definition file (`l2/docker-compose.yml`).
@@ -580,7 +580,7 @@ $ docker build \
     .
 ```
 
-Note that if SSL inspection configuration is required when building this image, follow the instructions described in "SSL Inspection Configuration" and uncomment the corresponding section in the Dockerfile.
+Note that if SSL inspection configuration is required when building this image, follow the instructions described in "[Configuration for SSL Inspection Environments](#configuration-for-ssl-inspection-environments)" and uncomment the corresponding section in the Dockerfile.
 
 Be sure to place the required certificate and update the Dockerfile settings before building the image.
 
@@ -588,7 +588,7 @@ Be sure to place the required certificate and update the Dockerfile settings bef
 
 The Clearing and Billing/Payment Service requires two business operator clients: one for the data provider and one for the data consumer.
 
-Follow the procedures described in [Reference Implementation Tutorial 2-1. Creating Authentication Information (Business Information / Individual Users / Client IDs)] and complete the steps from business information registration through [2-1-5. Obtaining the Business Client Secret] to create business operator clients for both the data provider and the data consumer.
+Follow the procedures described in [Reference Implementation Tutorial 2-1. Creation of Authentication Information (Operator Information / Individual Users / Client IDs)](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials_en.md#2-1-creation-of-authentication-information-operator-information--individual-users--client-ids) and complete the steps from business information registration through [2-1-5. Retrieving the Operator Client Secret](https://github.com/open-dataspaces/L3-identity-component/blob/main/docs/tutorials/tutorials_en.md#2-1-5-retrieving-the-operator-client-secret) to create business operator clients for both the data provider and the data consumer.
 
 In the following procedures, the client IDs of the created data provider and data consumer will be referred to as `PROVIDER_ID` and `CONSUMER_ID`, respectively.
 
@@ -604,7 +604,7 @@ Run the following command to register authorization tuples for the industry serv
 
 Specify the following values for the variables used in the command.
 
-If you have already completed the "Registering Tuples in the OpenFGA Store" procedure described in the Production Deployment section of this SDK, you can skip this step.
+If you have already completed the "[Registering Tuples in the OpenFGA Store](#registering-tuples-in-the-openfga-store)" procedure described in the "[Operational Setup](#operational-setup)" section of this SDK, you can skip this step.
 
 | Variable | Value |
 | -------- | ----- |
@@ -656,7 +656,7 @@ $ curl -i -X POST http://localhost:8083/stores/$USER_STORE_ID/write \
 
 ##### Configuring Data Access Routes
 
-Referring to "Integration with Industry Services - L2: Web API Transfer Module", configure routes so that communication logs are recorded by L2.
+Referring to "[Industry Service Integration - L2: Web API Transfer Module](#l2-web-api-transfer-module-2)", configure routes so that communication logs are recorded by L2.
 
 In this example, only GET requests to the mock server are permitted.
 
